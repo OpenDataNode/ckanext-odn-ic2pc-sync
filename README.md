@@ -6,10 +6,66 @@ CKAN Extenstion for synchronization of catalog records from internal catalog to 
 Installation
 -------
 
-To enable plugin, change property in your production.ini:
+
+(Optional): activate ckan virtualenv ``` . /usr/lib/ckan/default/bin/activate ```
+
+From the extension folder start the installation: ``` python setup.py install ```
+
+Add extension to ckan config: /etc/ckan/default/production.ini
+
 ```
+[app:main]
+odn.ic2pc.src.ckan.url = http://localhost
+odn.ic2pc.dst.ckan.url = http://destination_ckan.com
+odn.ic2pc.dst.ckan.api.key = c2ca3375-6d0e-44ec-927f-c380e4cf06df
+
+odn.ic2pc.package.extras.whitelist = creator dataset license modified publisher void#sparqlEndpoint
+odn.ic2pc.resource.extras.whitelist = license
+
 ckan.plugins = odn_ic2pc_sync
 ```
+
+Running the pusher job
+-------
+```
+paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd run --config=/etc/ckan/default/production.ini
+```
+
+example:
+````
+paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd test --config=/etc/ckan/default/production.ini
+```
+
+should have output like this:
+```
+test command started
+source ckan url:      http://localhost
+destination ckan url: http://destination_ckan.com
+destination api key:  c2ca3375-6d0e-44ec-927f-c380e4cf06df
+package extras whitelist:  creator dataset license modified publisher void#sparqlEndpoint
+resource extras whitelist: license
+```
+
+Creating cron job
+-------
+
+Edit cron table to create a cron job, that will run dataset pusher command periodically
+````
+sudo crontab -e -u user_name
+```
+
+example:
+```
+# m  h  dom mon dow   command
+*/15 *  *   *   *     /usr/bin/paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd run --config=/etc/ckan/default/production.ini
+```
+
+this example will check for pending jobs every fifteen minutes
+
+TODO
+-------
+
+* plugin functionality
 
 Licenses
 -------
