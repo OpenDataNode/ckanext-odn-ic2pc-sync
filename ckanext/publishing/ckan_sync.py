@@ -14,7 +14,7 @@ log = logging.getLogger('ckanext')
 
 ORGANIZATION_NAME = "comsode"
 
-class CkanToCkanPusher():
+class CkanSync():
     
 
     def push(self, src_ckan, dst_ckan, package_ids=None,
@@ -36,7 +36,7 @@ class CkanToCkanPusher():
         ::usage::
         src_ckan = CkanAPIWrapper('http://src_ckan.com', 'api_key')
         dst_ckan = CkanAPIWrapper('http://dst_ckan.com', 'api_key')
-        CkanToCkanPusher().push(src_ckan, dst_ckan)
+        CkanSync().push(src_ckan, dst_ckan)
         '''
         log.info('pushing datasets from %s to %s' % (src_ckan.url, dst_ckan.url,))
         

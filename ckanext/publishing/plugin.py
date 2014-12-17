@@ -11,7 +11,7 @@ GET = dict(method=['GET'])
 POST = dict(method=['POST'])
 
 
-class DatasetPusher(plugins.SingletonPlugin):
+class PublishingPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IRoutes)
     

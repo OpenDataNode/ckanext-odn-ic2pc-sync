@@ -7,26 +7,37 @@ from ckan.lib.cli import CkanCommand
 import sys
 
 import logging
-from ckanext.model.publishing import external_catalog_table
+from ckanext.model.external_catalog import external_catalog_table
 log = logging.getLogger('ckanext')
 
 
-class DatasetPusherCmd(CkanCommand):
+class PublishingCmd(CkanCommand):
     '''Pushes datasets from one ckan to another
     
     needs set properties in provided config file:
-    dataset.pusher.src.ckan.url        - source ckan from which we are harvesting datasets
-    dataset.pusher.dst.ckan.url        - destination ckan to which we are pushing the datasets
-    dataset.pusher.dst.ckan.api.key    - destination ckan api key needed for authentication
+    odn.ic2pc.src.ckan.url        - source ckan from which we are harvesting datasets
+    odn.ic2pc.dst.ckan.url        - destination ckan to which we are pushing the datasets
+    odn.ic2pc.dst.ckan.api.key    - destination ckan api key needed for authentication
+    
+    odn.ic2pc.package.extras.whitelist     - package extras allowed to be synchronized 
+    odn.ic2pc.resource.extras.whitelist    - resource extras allowed to be synchronized
+    
+    The whitelist properties have a blank space as delimiter
     
     Usage:
         
-        ckan_to_ckan_pusher test
+        publishing_cmd test
         - start test that writes source and destination ckan url that are
           set in provided config file
         
-        ckan_to_ckan_pusher run
+        publishing_cmd run
         - starts pushing datasets
+        
+        publishing_cmd initdb
+        - initializes DB tables needed for THIS extension
+        
+        publishing_cmd uninstall
+        - drops tables in DB needed for THIS extension
     '''
     
     summary = __doc__.split('\n')[0]
@@ -36,7 +47,7 @@ class DatasetPusherCmd(CkanCommand):
     
     def __init__(self, name):
 
-        super(DatasetPusherCmd, self).__init__(name)
+        super(PublishingCmd, self).__init__(name)
 
     
     def command(self):
@@ -48,7 +59,7 @@ class DatasetPusherCmd(CkanCommand):
         cmd = self.args[0]
         
         if cmd == 'test':
-            log.info('Starting [DatasetPusherCmd test]')
+            log.info('Starting [PublishingCmd test]')
             conf = self._get_config()
             src_ckan_url = conf.get('odn.ic2pc.src.ckan.url')
             dst_ckan_url = conf.get('odn.ic2pc.dst.ckan.url')
@@ -65,8 +76,8 @@ class DatasetPusherCmd(CkanCommand):
             log.info('resource extras whitelist: {0}'.format(resource_whitelist))
             
         elif cmd == 'run':
-            log.info('Starting [DatasetPusherCmd run]')
-            from ckanext.dataset_pusher.pusher import CkanToCkanPusher
+            log.info('Starting [PublishingCmd run]')
+            from ckanext.dataset_pusher.pusher import CkanSync
             from odn_ckancommons.ckan_helper import CkanAPIWrapper
             
             conf = self._get_config()
@@ -86,10 +97,10 @@ class DatasetPusherCmd(CkanCommand):
             
             src_ckan = CkanAPIWrapper(src_ckan_url, None)
             dst_ckan = CkanAPIWrapper(dst_ckan_url, dst_ckan_api_key)
-            pusher = CkanToCkanPusher()
+            pusher = CkanSync()
             pusher.push(src_ckan, dst_ckan, whitelist_package_extras=package_whitelist,
                         whitelist_resource_extras=resource_whitelist)
-            log.info('End of [DatasetPusherCmd run]')
+            log.info('End of [PublishingCmd run]')
         
         elif cmd == 'initdb':
             log.info('Starting db initialization')
@@ -114,4 +125,4 @@ class DatasetPusherCmd(CkanCommand):
             
             
     def _load_config(self):
-        super(DatasetPusherCmd, self)._load_config()
+        super(PublishingCmd, self)._load_config()

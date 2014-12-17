@@ -13,7 +13,7 @@ import ckan.logic as logic
 import ckan.model as model
 
 from ckan.common import _, request, c
-from ckanext.model.publishing import ExternalCatalog
+from ckanext.model.external_catalog import ExternalCatalog
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -126,8 +126,6 @@ class PublishingController(base.BaseController):
             auth_req = True
         auth = data[u'authorization']
         
-        log.debug("catalog_id = {0}".format(data[u'catalog_id']))
-
         missing = []
         if not type:
             missing.append(_("Type of catalog"))

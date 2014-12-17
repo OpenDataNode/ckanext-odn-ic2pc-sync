@@ -41,13 +41,13 @@ class ExternalCatalog(domain_object.DomainObject):
     
     @classmethod
     def get_all(cls):
-        return Session.query(cls).order_by(cls.id)
+        return Session.query(cls).order_by(cls.id).all()
     
     @classmethod
     def by_dataset_id(cls, dataset_id):
         assert dataset_id
         return Session.query(cls)\
-            .filter_by(package_id = dataset_id).order_by(cls.id)
+            .filter_by(package_id = dataset_id).order_by(cls.id).all()
     
     @classmethod
     def by_id(cls, id):

@@ -25,7 +25,7 @@ odn.ic2pc.src.ckan.url = http://localhost
 odn.ic2pc.dst.ckan.url = http://destination_ckan.com
 odn.ic2pc.dst.ckan.api.key = c2ca3375-6d0e-44ec-927f-c380e4cf06df
 
-# used by command line and plugin too
+# used by command line and plugin too, blank space as delimiter
 odn.ic2pc.package.extras.whitelist = creator dataset license modified publisher void#sparqlEndpoint
 odn.ic2pc.resource.extras.whitelist = license
 

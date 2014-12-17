@@ -22,7 +22,7 @@ setup(
     packages=find_packages(exclude=['examples', 'tests']),
     namespace_packages=['ckanext',
                         'ckanext.commands',
-                        'ckanext.dataset_pusher'
+                        'ckanext.publishing'
                         ],
     package_data={'': [
                        'fanstatic/*.js',
@@ -38,8 +38,8 @@ setup(
     entry_points=\
     """
     [ckan.plugins]
-    odn_ic2pc_sync=ckanext.dataset_pusher.plugin:DatasetPusher
+    odn_ic2pc_sync=ckanext.publishing.plugin:PublishingPlugin
     [paste.paster_command]
-    odn_ic2pc_sync_cmd = ckanext.commands.ckan_to_ckan_pusher:DatasetPusherCmd
+    odn_ic2pc_sync_cmd = ckanext.commands.publishing_cmd:DatasetPusherCmd
     """,
 )
