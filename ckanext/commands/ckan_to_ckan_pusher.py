@@ -7,6 +7,7 @@ from ckan.lib.cli import CkanCommand
 import sys
 
 import logging
+from ckanext.model.publishing import external_catalog_table
 log = logging.getLogger('ckanext')
 
 
@@ -63,7 +64,7 @@ class DatasetPusherCmd(CkanCommand):
             log.info('package extras whitelist:  {0}'.format(package_whitelist))
             log.info('resource extras whitelist: {0}'.format(resource_whitelist))
             
-        if cmd == 'run':
+        elif cmd == 'run':
             log.info('Starting [DatasetPusherCmd run]')
             from ckanext.dataset_pusher.pusher import CkanToCkanPusher
             from odn_ckancommons.ckan_helper import CkanAPIWrapper
@@ -89,6 +90,27 @@ class DatasetPusherCmd(CkanCommand):
             pusher.push(src_ckan, dst_ckan, whitelist_package_extras=package_whitelist,
                         whitelist_resource_extras=resource_whitelist)
             log.info('End of [DatasetPusherCmd run]')
+        
+        elif cmd == 'initdb':
+            log.info('Starting db initialization')
+            if not external_catalog_table.exists():
+                log.info("creating external_catalog table")
+                external_catalog_table.create()
+                log.info("external_catalog table created successfully")
+            else:
+                log.info("external_catalog table already exists")
+            log.info('End of db initialization')
+        
+        elif cmd == 'uninstall':
+            log.info('Starting uninstall command')
+            if external_catalog_table.exists():
+                log.info("dropping external_catalog table")
+                external_catalog_table.drop()
+                log.info("dropped external_catalog table successfully")
+            else:
+                log.info("Table external_catalog doesn't exist")
+            log.info('End of uninstall command')
+        
             
             
     def _load_config(self):

@@ -1,0 +1,8 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+	{{ super() }}
+	{% if not pkg_dict.private %}
+	  {{ h.build_nav_icon('dataset_publishing', _('Publishing'), id=pkg.name, icon='paperclip') }}
+	{% endif %}
+{% endblock %}
