@@ -40,6 +40,6 @@ setup(
     [ckan.plugins]
     odn_ic2pc_sync=ckanext.publishing.plugin:PublishingPlugin
     [paste.paster_command]
-    odn_ic2pc_sync_cmd = ckanext.commands.publishing_cmd:DatasetPusherCmd
+    odn_ic2pc_sync_cmd = ckanext.commands.publishing_cmd:PublishingCmd
     """,
 )
