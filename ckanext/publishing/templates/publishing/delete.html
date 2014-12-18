@@ -1,0 +1,37 @@
+{% extends "package/edit_base.html" %}
+
+{% block subtitle %}{{ _('Deleting catalog') }} - {{ h.dataset_display_name(pkg) }}{% endblock %}
+
+{% set controller = 'ckanext.controllers.publishing:PublishingController' %}
+
+{% block styles %}
+  {{ super() }}
+  {% resource 'publ_theme/publishing.css' %}
+{% endblock %}
+
+{% block page_primary_action %}{% endblock %}
+
+{% import 'macros/form.html' as form %}
+
+
+{% block primary_content_inner %}
+  <div class="publ_header">Deletion of external catalog</div>
+  
+  <form method='post' class="module-content form-horizontal" action="{% url_for controller=controller, action='delete_cat', id=c.pkg_dict.id, cat_id=catalog.id %}">
+    <table style="width:100%">
+      <tr>
+        <td>{{ _('Type of catalog:') }}</td>
+        <td>{{ catalog.type }}</td>
+      </tr>
+      <tr>
+        <td>{{ _('URL of external catalog:') }}</td>
+        <td>{{ catalog.url }}</td>
+      </tr>
+    </table>
+    <div class="publ_delete_confirm">Delete this catalog?</div>
+    <div class="form-actions">
+    {% link_for _('Back'), controller=controller, action='show', id=c.pkg_dict.name, class_='btn' %}
+    <input type="submit" class="btn btn-primary" value="{{ _('Delete') }}" />
+    </div>
+  </form>
+{% endblock %}

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.1.0'
+version = '0.2.0'
 
 setup(
     name='ckanext-odn-ic2pc-sync',
@@ -21,16 +21,25 @@ setup(
     license='',
     packages=find_packages(exclude=['examples', 'tests']),
     namespace_packages=['ckanext',
-                        'ckanext.dataset_pusher',
-                        'ckanext.dataset_pusher.commands'],
+                        'ckanext.commands',
+                        'ckanext.publishing'
+                        ],
+    package_data={'': [
+                       'fanstatic/*.js',
+                       'fanstatic/*.css',
+                       'templates/*.html',
+                       'templates/package/*.html',
+                       'templates/publishing/*.html'
+                       ]
+                  },
     include_package_data=True,
     zip_safe=False,
     install_requires=['odn-ckancommons>=0.2.0-SNAPSHOT'],
     entry_points=\
     """
     [ckan.plugins]
-    odn_ic2pc_sync=ckanext.dataset_pusher.plugin:DatasetPusher
+    odn_ic2pc_sync=ckanext.publishing.plugin:PublishingPlugin
     [paste.paster_command]
-    odn_ic2pc_sync_cmd = ckanext.dataset_pusher.commands.ckan_to_ckan_pusher:DatasetPusherCmd
+    odn_ic2pc_sync_cmd = ckanext.commands.publishing_cmd:DatasetPusherCmd
     """,
 )
