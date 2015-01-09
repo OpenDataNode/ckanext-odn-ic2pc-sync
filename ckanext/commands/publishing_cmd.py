@@ -77,7 +77,7 @@ class PublishingCmd(CkanCommand):
             
         elif cmd == 'run':
             log.info('Starting [PublishingCmd run]')
-            from ckanext.dataset_pusher.pusher import CkanSync
+            from ckanext.publishing.ckan_sync import CkanSync
             from odn_ckancommons.ckan_helper import CkanAPIWrapper
             
             conf = self._get_config()
