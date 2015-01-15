@@ -6,7 +6,8 @@ CKAN Extenstion for synchronization of catalog records from internal catalog to 
 Features:
 * Adds publishing table to DB
 * Adds Publishing tab to dataset management ONLY IF the dataset is public
-* Allows to add / remove / edit external catalogs to dataset 
+* Allows to add / remove / edit external catalogs to dataset
+* Starts synchronization with default (from .ini file) and external catalogs whenever package is created/updated or package resource was created / updated / deleted
 
 Installation
 -------
@@ -107,6 +108,7 @@ TODO
 -------
 
 * last update in the external catalog table
+* when automatic synchronization start it always updates the whole dataset, but if resource changes it's not necessary to update dataset just the resource 
 
 Licenses
 -------

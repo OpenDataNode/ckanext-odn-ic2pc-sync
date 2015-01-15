@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.2.0'
+version = '0.3.0'
 
 setup(
     name='ckanext-odn-ic2pc-sync',
@@ -34,7 +34,7 @@ setup(
                   },
     include_package_data=True,
     zip_safe=False,
-    install_requires=['odn-ckancommons>=0.2.0-SNAPSHOT'],
+    install_requires=['odn-ckancommons>=0.3.0-SNAPSHOT'],
     entry_points=\
     """
     [ckan.plugins]

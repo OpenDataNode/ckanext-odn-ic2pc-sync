@@ -65,15 +65,15 @@ class PublishingCmd(CkanCommand):
             dst_ckan_url = conf.get('odn.ic2pc.dst.ckan.url')
             dst_ckan_api_key = conf.get('odn.ic2pc.dst.ckan.api.key')
             
-            package_whitelist = conf.get('odn.ic2pc.package.extras.whitelist')
-            resource_whitelist = conf.get('odn.ic2pc.resource.extras.whitelist')
+            package_extras_whitelist = conf.get('odn.ic2pc.package.extras.whitelist')
+            resource_extras_whitelist = conf.get('odn.ic2pc.resource.extras.whitelist')
 
             log.info('source ckan url:      %s' % (src_ckan_url,))
             log.info('destination ckan url: %s' % (dst_ckan_url,))
             log.info('destination api key:  %s' % (dst_ckan_api_key,))
             
-            log.info('package extras whitelist:  {0}'.format(package_whitelist))
-            log.info('resource extras whitelist: {0}'.format(resource_whitelist))
+            log.info('package extras whitelist:  {0}'.format(package_extras_whitelist))
+            log.info('resource extras whitelist: {0}'.format(resource_extras_whitelist))
             
         elif cmd == 'run':
             log.info('Starting [PublishingCmd run]')
@@ -85,11 +85,11 @@ class PublishingCmd(CkanCommand):
             dst_ckan_url = conf.get('odn.ic2pc.dst.ckan.url')
             dst_ckan_api_key = conf.get('odn.ic2pc.dst.ckan.api.key')
             
-            package_whitelist = conf.get('odn.ic2pc.package.extras.whitelist', "")
-            resource_whitelist = conf.get('odn.ic2pc.resource.extras.whitelist', "")
+            package_extras_whitelist = conf.get('odn.ic2pc.package.extras.whitelist', "")
+            resource_extras_whitelist = conf.get('odn.ic2pc.resource.extras.whitelist', "")
             
-            package_whitelist = package_whitelist.split(' ')
-            resource_whitelist = resource_whitelist.split(' ')
+            package_extras_whitelist = package_extras_whitelist.split(' ')
+            resource_extras_whitelist = resource_extras_whitelist.split(' ')
             
             assert src_ckan_url
             assert dst_ckan_url
@@ -98,8 +98,8 @@ class PublishingCmd(CkanCommand):
             src_ckan = CkanAPIWrapper(src_ckan_url, None)
             dst_ckan = CkanAPIWrapper(dst_ckan_url, dst_ckan_api_key)
             pusher = CkanSync()
-            pusher.push(src_ckan, dst_ckan, whitelist_package_extras=package_whitelist,
-                        whitelist_resource_extras=resource_whitelist)
+            pusher.push(src_ckan, dst_ckan, whitelist_package_extras=package_extras_whitelist,
+                        whitelist_resource_extras=resource_extras_whitelist)
             log.info('End of [PublishingCmd run]')
         
         elif cmd == 'initdb':
