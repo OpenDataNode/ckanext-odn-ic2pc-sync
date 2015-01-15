@@ -14,6 +14,7 @@ from ckanext.model.external_catalog import ExternalCatalog
 from odn_ckancommons.ckan_helper import CkanAPIWrapper
 from ckanext.publishing.ckan_sync import CkanSync
 from urllib2 import URLError
+from datetime import datetime
 log = logging.getLogger('ckanext')
 
 GET = dict(method=['GET'])
@@ -62,6 +63,8 @@ def start_sync(context, dataset):
                 log.debug('sync to catalog = {0}'.format(catalog.url))
                 to_ckan = CkanAPIWrapper(catalog.url, catalog.authorization)
                 CkanSync().push(from_ckan, to_ckan, [dataset['name']], package_extras_whitelist, resource_extras_whitelist)
+                catalog.last_updated = datetime.utcnow()
+                catalog.save()
             else:
                 log.debug('Catalog {0} is not CKAN type'.format(catalog.url))
         except URLError, e:
@@ -123,11 +126,24 @@ def res_update(context, data_dict=None):
     return ret_val
 
 
+def format_datetime(datetime):
+    
+    if not datetime:
+        return None
+
+    return datetime.strftime("%Y-%m-%d %H:%M")
+
+
 class PublishingPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IRoutes)
     plugins.implements(plugins.IActions)
+    plugins.implements(plugins.ITemplateHelpers)
 
+
+    def get_helpers(self):
+        return {'format_datetime': format_datetime}
+        
     
     def get_actions(self):
         return {'package_create': dataset_create,

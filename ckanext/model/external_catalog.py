@@ -22,13 +22,24 @@ external_catalog_table = Table('external_catalog', metadata,
             Column('type', types.UnicodeText, nullable=False),
             Column('url', types.UnicodeText, nullable=False),
             Column('authorization_required', types.BOOLEAN, nullable=False),
-            Column('authorization', types.UnicodeText, nullable=True)
+            Column('authorization', types.UnicodeText, nullable=True),
+            Column('last_updated', types.DateTime, nullable=True)
             )
+
+def migrate_to_v0_3():
+    conn = Session.connection()
+    
+    statement = """
+    ALTER TABLE external_catalog
+        ADD COLUMN last_updated timestamp;
+    """
+    conn.execute(statement)
+    Session.commit()
 
 
 class ExternalCatalog(domain_object.DomainObject):
     
-    def __init__(self, package_id, type, url, authorization_required, authorization):
+    def __init__(self, package_id, type, url, authorization_required, authorization, last_updated=None):
         assert package_id
         assert type
         assert url
@@ -38,6 +49,7 @@ class ExternalCatalog(domain_object.DomainObject):
         self.url = url
         self.authorization_required = authorization_required
         self.authorization  = authorization
+        self.last_updated = last_updated
     
     @classmethod
     def get_all(cls):

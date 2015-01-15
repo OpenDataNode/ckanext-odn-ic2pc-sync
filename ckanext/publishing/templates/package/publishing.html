@@ -21,7 +21,7 @@
   	    <th>URL</th>
   	    <th>Type</th>
   	    <th>Authorization</th>
-  	    <th>Last update</th>
+  	    <th>Last update (UTC)</th>
   	    <th>Action</th>
   	  </tr>
   	  {% for cat in catalogs %}
@@ -35,7 +35,7 @@
           {{ _("No") }}
         {% endif %}  
         </td>
-        <td>TODO</td>
+        <td>{{ h.format_datetime(cat.last_updated) or '-' }}</td>
         <td>
           <div class="dropdown btn-group">
 		    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
