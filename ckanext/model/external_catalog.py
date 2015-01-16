@@ -12,7 +12,7 @@ from ckan.model.meta import metadata, Session, mapper
 from sqlalchemy.orm import relationship, backref
 from ckan.model.package import Package
 
-STATUS = ["NOT RUN", "OK", "FAILED"]
+STATUS = ["N/A", "OK", "FAILED"]
 
 external_catalog_table = Table('external_catalog', metadata,
             Column('id', types.INTEGER, primary_key=True, autoincrement=True),
