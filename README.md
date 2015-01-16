@@ -8,6 +8,7 @@ Features:
 * Adds Publishing tab to dataset management ONLY IF the dataset is public
 * Allows to add / remove / edit external catalogs to dataset
 * Starts synchronization with default (from .ini file) and external catalogs whenever package is created/updated or package resource was created / updated / deleted
+* Allows to start the synchronization to public or external catalogs manually from publishing tab
 
 Installation
 -------

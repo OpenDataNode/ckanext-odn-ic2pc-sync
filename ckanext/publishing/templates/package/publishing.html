@@ -10,7 +10,11 @@
 {% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add catalog'), controller=controller, action='create', id=pkg_dict.name, class_='btn', icon='plus' %}
+  <p>{% link_for _('Add catalog'), controller=controller, action='create', id=pkg_dict.name, class_='btn', icon='plus' %}</p>
+  <p>{% link_for _('Synchronize with public catalog now'), controller=controller, action='sync_public', id=pkg_dict.name, class_='btn' %}</p>
+  {% if catalogs %}
+  <p>{% link_for _('Synchronize with all external catalogs now'), controller=controller, action='sync_all_ext', id=pkg_dict.name, class_='btn' %}</p>
+  {% endif %}
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -21,7 +25,8 @@
   	    <th>URL</th>
   	    <th>Type</th>
   	    <th>Authorization</th>
-  	    <th>Last update (UTC)</th>
+  	    <th>Last sync on (UTC)</th>
+  	    <th>Status</th>
   	    <th>Action</th>
   	  </tr>
   	  {% for cat in catalogs %}
@@ -35,7 +40,8 @@
           {{ _("No") }}
         {% endif %}  
         </td>
-        <td>{{ h.format_datetime(cat.last_updated) or '-' }}</td>
+        <td>{{ h.format_datetime(cat.last_updated) or _('N/A') }}</td>
+        <td>{{ cat.status_string() }}</td>
         <td>
           <div class="dropdown btn-group">
 		    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">

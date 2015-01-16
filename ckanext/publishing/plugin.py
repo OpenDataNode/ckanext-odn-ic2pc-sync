@@ -10,7 +10,7 @@ import threading
 
 from ckan.logic.action.update import package_update, resource_update
 from ckan.logic.action.create import package_create, resource_create
-from ckanext.model.external_catalog import ExternalCatalog
+from ckanext.model.external_catalog import ExternalCatalog, STATUS
 from odn_ckancommons.ckan_helper import CkanAPIWrapper
 from ckanext.publishing.ckan_sync import CkanSync
 from urllib2 import URLError
@@ -39,7 +39,7 @@ def get_catalogs_to_sync(dataset):
 
 
 def start_sync(context, dataset):
-    assert dataset # TODO proper error throw
+    assert dataset
     
     log.debug('starting sync of dataset = {0}'.format(dataset['name']))
     catalogs = get_catalogs_to_sync(dataset)
@@ -56,27 +56,45 @@ def start_sync(context, dataset):
     except Exception, e:
         log.exception(e)
     
-    log.debug("sync to dataset specific extra external catalogs ({0})".format(len(catalogs)))
+    log.debug("sync to dataset specified external catalogs ({0})".format(len(catalogs)))
     for catalog in catalogs:
-        try:
-            if catalog.type == 'CKAN':
-                log.debug('sync to catalog = {0}'.format(catalog.url))
-                to_ckan = CkanAPIWrapper(catalog.url, catalog.authorization)
-                CkanSync().push(from_ckan, to_ckan, [dataset['name']], package_extras_whitelist, resource_extras_whitelist)
-                catalog.last_updated = datetime.utcnow()
-                catalog.save()
-            else:
-                log.debug('Catalog {0} is not CKAN type'.format(catalog.url))
-        except URLError, e:
-            log.error("Couldn't finish synchronization: {0}".format(e))
-        except Exception, e:
-            log.exception(e)
+        sync_ext_catalog(from_ckan, catalog, dataset)
 
+
+def sync_ext_catalog(from_ckan, external_catalog, dataset):
+    '''Synchronizes dataset from from_ckan to external_catalog
+    
+    :param from_ckan: source ckan
+    :type from_ckan: CkanAPIWrapper
+    :param external_catalog: destination CKAN
+    :type external_catalog: ExternalCatalog
+    :param dataset: dataset to push / synchronize
+    :type dataset: dictionary
+    '''
+    status = STATUS.index("OK")
+    try:
+        if external_catalog.type == 'CKAN':
+            log.debug('sync to catalog = {0}'.format(external_catalog.url))
+            to_ckan = CkanAPIWrapper(external_catalog.url, external_catalog.authorization)
+            CkanSync().push(from_ckan, to_ckan, [dataset['name']], package_extras_whitelist, resource_extras_whitelist)
+        else:
+            log.debug('Catalog {0} is not CKAN type'.format(external_catalog.url))
+    except URLError, e:
+        status = STATUS.index("FAILED")
+        log.error("Couldn't finish synchronization: {0}".format(e))
+    except Exception, e:
+        status = STATUS.index("FAILED")
+        log.exception(e)
+        
+    external_catalog.last_updated = datetime.utcnow()
+    external_catalog.status = status
+    external_catalog.save()
+        
 
 def dataset_update(context, data_dict=None):
     ret_val = package_update(context, data_dict)
     if not context.get('defer_commit') and not ret_val['private']:
-        log.debug("package_update sync dataset TODO")
+        log.debug("package_update sync dataset")
         t = threading.Thread(target=start_sync, args=(context, ret_val, ))
         t.daemon = True
         t.start()
@@ -88,7 +106,7 @@ def dataset_create(context, data_dict=None):
     ret_val = package_create(context, data_dict)
 
     if not context.get('defer_commit') and not ret_val['private']:
-        log.debug("package_create sync dataset TODO")
+        log.debug("package_create sync dataset")
         t = threading.Thread(target=start_sync, args=(context, ret_val, ))
         t.daemon = True
         t.start()
@@ -103,7 +121,7 @@ def res_create(context, data_dict=None):
     data_dict = {'id': package_id}
     dataset = get_action('package_show')(context, data_dict)
     if not dataset['private']: # dataset is public
-        log.debug("resource_create sync dataset TODO")
+        log.debug("resource_create sync dataset")
         t = threading.Thread(target=start_sync, args=(context, dataset, ))
         t.daemon = True
         t.start()
@@ -118,7 +136,7 @@ def res_update(context, data_dict=None):
     data_dict = {'id': package_id}
     dataset = get_action('package_show')(context, data_dict)
     if not dataset['private']: # dataset is public
-        log.debug("resource_update sync dataset TODO")
+        log.debug("resource_update sync dataset")
         t = threading.Thread(target=start_sync, args=(context, dataset, ))
         t.daemon = True
         t.start()
@@ -131,7 +149,7 @@ def format_datetime(datetime):
     if not datetime:
         return None
 
-    return datetime.strftime("%Y-%m-%d %H:%M")
+    return datetime.strftime("%d. %b %Y, %H:%M")
 
 
 class PublishingPlugin(plugins.SingletonPlugin):
@@ -175,6 +193,9 @@ class PublishingPlugin(plugins.SingletonPlugin):
             
             m.connect('/dataset/{id}/publishing/delete/{cat_id}', action='delete')
             m.connect('/dataset/{id}/publishing/delete_catalog/{cat_id}', action='delete_cat', conditions=POST)
+            
+            m.connect('/dataset/{id}/publishing/sync_public', action='sync_public')
+            m.connect('/dataset/{id}/publishing/sync_all_ext', action='sync_all_ext')
         
         return route_map
     
