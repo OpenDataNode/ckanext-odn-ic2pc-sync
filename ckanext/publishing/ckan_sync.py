@@ -21,7 +21,7 @@ class CkanSync():
              whitelist_package_extras=None,
              whitelist_resource_extras=None):
         '''
-        pushes datasets from_ckan to to_ckan
+        pushes datasets from_ckan to dst_ckan
         :param src_ckan: source ckan
         :type src_ckan: odn_ckancommons.CkanAPIWrapper
         :param dst_ckan: target ckan
@@ -38,16 +38,16 @@ class CkanSync():
         dst_ckan = CkanAPIWrapper('http://dst_ckan.com', 'api_key')
         CkanSync().push(src_ckan, dst_ckan)
         '''
-        log.info('pushing datasets from %s to %s' % (src_ckan.url, dst_ckan.url,))
+        log.info('pushing datasets from {0} to {1}'.format(src_ckan.url, dst_ckan.url,))
         
         if not package_ids:
             package_ids = src_ckan.get_all_package_ids()
         
         dataset_num = len(package_ids)        
-        log.info('number of datasets: %d' % (dataset_num,))
+        log.info('number of datasets: {0}'.format(dataset_num,))
     
         for i, dataset_id in enumerate(package_ids, start = 1):
-            log.info('[%d / %d] processing dataset_obj with id/name (source ckan) %s' % (i, dataset_num, dataset_id,))
+            log.info('[{0} / {1}] processing dataset_obj with id/name (source ckan) {2}'.format(i, dataset_num, dataset_id))
             package = src_ckan.get_package(dataset_id)
             if not package:
                 log.error("No dataset found with id/name = {0}".format(dataset_id))
@@ -70,21 +70,25 @@ class CkanSync():
                 
                 if found:
                     dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())['id']
-                    log.info('[%d / %d] dataset_obj with id/name %s updated OK' % (i, dataset_num, dataset_id,))
+                    log.info('[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
                     dst_package_id = dst_ckan.package_create(dataset_obj)['id']
-                    log.info('[%d / %d] dataset_obj %s created OK' % (i, dataset_num, dataset_id,))
+                    log.info('[{0} / {1}] dataset_obj {2} created OK'.format(i, dataset_num, dataset_id))
                 
-                # now resources
+                # now resource_names
+                resource_names = []
                 for resource in dataset_obj.resources:
                     if not resource['name']:
                         resource['name'] = ''
 
-                    # filtering resource extra: its different from package extras !                     
-                    filter_resource_extras(resource, whitelist_resource_extras)
-                    
-                    log.info('creating / updating resource: name=%s' % (resource['name'].encode('utf8'),))
+                    log.info('creating / updating resource: name={0}'.format(resource['name'].encode('utf8')))
                     resource_create_update_with_upload(dst_ckan, resource, dst_package_id, whitelist_resource_extras)
+                    resource_names.append(resource['name'])
+                
+                log.info('deleting resources with names not in {0}'.format(resource_names))
+                # delete resource not in src_ckan
+                dst_ckan.delete_resources_not_with_name_in(resource_names, dst_package_id)
+                
                     
             except urllib2.HTTPError,e:
                 log.error(e)

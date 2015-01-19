@@ -6,7 +6,9 @@ CKAN Extenstion for synchronization of catalog records from internal catalog to 
 Features:
 * Adds publishing table to DB
 * Adds Publishing tab to dataset management ONLY IF the dataset is public
-* Allows to add / remove / edit external catalogs to dataset 
+* Allows to add / remove / edit external catalogs to dataset
+* Starts synchronization with default (from .ini file) and external catalogs whenever package is created/updated or package resource was created / updated / deleted
+* Allows to start the synchronization to public or external catalogs manually from publishing tab
 
 Installation
 -------
@@ -48,6 +50,16 @@ creating external_catalog table				/ Or if it was already intialized:
 external_catalog table created successfully	/ external_catalog table already exists
 End of db initialization
 ```
+
+Migrating DB from v0.2.0 to v0.3.0
+-------
+There were changes in DB model with migrating to v0.3.0, to to function normally, its required to start this command
+
+```
+paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd migrate_to_v0.3.0 --config=/etc/ckan/default/production.ini
+```
+
+If its clean install, starting the migration command isn't necessary.
 
 Uninstall
 -------
@@ -107,6 +119,7 @@ TODO
 -------
 
 * last update in the external catalog table
+* when automatic synchronization start it always updates the whole dataset, but if resource changes it's not necessary to update dataset just the resource 
 
 Licenses
 -------

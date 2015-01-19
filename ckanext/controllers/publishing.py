@@ -5,6 +5,7 @@ Created on 12.11.2014
 '''
 
 import logging
+import pylons.config as config
 
 import ckan.lib.base as base
 import ckan.lib.helpers as h
@@ -13,7 +14,12 @@ import ckan.logic as logic
 import ckan.model as model
 
 from ckan.common import _, request, c
-from ckanext.model.external_catalog import ExternalCatalog
+from ckanext.model.external_catalog import ExternalCatalog, STATUS
+from urllib2 import URLError
+from odn_ckancommons.ckan_helper import CkanAPIWrapper
+from ckanext.publishing.ckan_sync import CkanSync
+from datetime import datetime
+from ckanext.publishing.plugin import sync_ext_catalog
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -25,6 +31,13 @@ check_access = logic.check_access
 get_action = logic.get_action
 
 log = logging.getLogger('ckanext')
+
+src_ckan = config.get('odn.ic2pc.src.ckan.url', None)
+dst_ckan = config.get('odn.ic2pc.dst.ckan.url', None)
+dst_api_key = config.get('odn.ic2pc.dst.ckan.api.key', None)
+package_extras_whitelist = config.get('odn.ic2pc.package.extras.whitelist', '').split(' ')
+resource_extras_whitelist = config.get('odn.ic2pc.resource.extras.whitelist', '').split(' ')
+
 
 
 class PublishingController(base.BaseController):
@@ -85,7 +98,7 @@ class PublishingController(base.BaseController):
     def edit(self, id, cat_id):
         self._load(id)
         vars = {
-                'form_action': 'save', # TODO
+                'form_action': 'save',
                 'catalog': ExternalCatalog.by_id(cat_id)
         }
         return render('publishing/edit.html', extra_vars = vars)
@@ -137,15 +150,12 @@ class PublishingController(base.BaseController):
         if missing:
             h.flash_error(_("This fields are required and need to be filled: {0}")\
                           .format(', '.join(missing)))
-            redirect_to_page = 'create_catalog'
             if data[u'catalog_id']:
                 base.redirect(h.url_for('edit_catalog', id=id, cat_id=data[u'catalog_id']))
             else:
                 base.redirect(h.url_for('create_catalog', id=id))
             
         try:
-            # TODO
-            
             if not data[u'catalog_id']:
                 ext_catalog = ExternalCatalog(id, type, url, auth_req, auth)
             else:
@@ -165,3 +175,46 @@ class PublishingController(base.BaseController):
         
         pkg = model.Package.get(id)
         base.redirect(h.url_for('dataset_publishing', id=pkg.name))
+        
+        
+    def sync_public(self, id):
+        self._load(id)
+        if not c.pkg_dict['private']:
+            sync(c.pkg_dict)
+            h.flash_notice(_('Synchronization with public catalog ended.'))
+        else:
+            h.flash_notice(_("Synchronization not started, the dataset isn't public."))
+        base.redirect(h.url_for('dataset_publishing', id=id))
+    
+    
+    def sync_all_ext(self, id):
+        self._load(id)
+        if not c.pkg_dict['private']:
+            sync(c.pkg_dict, False)
+            h.flash_notice(_('Synchronization with external catalogs ended.'))
+        else:
+            h.flash_notice(_("Synchronization not started, the dataset isn't public."))
+        base.redirect(h.url_for('dataset_publishing', id=id))
+        
+    
+def sync(dataset, public=True):
+    from_ckan = CkanAPIWrapper(src_ckan, None)
+    
+    if public: # public catalog from .ini file
+        try:
+            log.debug("sync to public CKAN: {0}".format(dst_ckan))
+            default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
+            
+            CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
+                        package_extras_whitelist, resource_extras_whitelist)
+        except URLError, e:
+            log.error("Couldn't finish synchronization: {0}".format(e))
+        except Exception, e:
+            log.exception(e)
+    else: # external catalogs
+        ext_catalogs = ExternalCatalog.by_dataset_id(dataset['id'])
+        log.debug("sync to dataset specified external catalogs ({0})".format(len(ext_catalogs)))
+        
+        for catalog in ext_catalogs:
+            sync_ext_catalog(from_ckan, catalog, dataset)
+    

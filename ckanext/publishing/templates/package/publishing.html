@@ -10,7 +10,26 @@
 {% endblock %}
 
 {% block page_primary_action %}
-  {% link_for _('Add catalog'), controller=controller, action='create', id=pkg_dict.name, class_='btn', icon='plus' %}
+  <div class="dropdown btn-group">
+    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+	  <i class="icon-share-alt"></i>
+	    {{ _('Action') }}
+		<span class="caret"></span>
+    </a>
+	<ul class="dropdown-menu">
+	  <li>
+        {% link_for _('Add catalog'), controller=controller, action='create', id=pkg_dict.name, icon='plus' %}
+	  </li>
+	  <li>
+		{% link_for _('Synchronize with public catalog now'), controller=controller, action='sync_public', id=pkg_dict.name, icon='upload-alt' %}
+      </li>
+      {% if catalogs %}
+      <li>
+        {% link_for _('Synchronize with all external catalogs now'), controller=controller, action='sync_all_ext', id=pkg_dict.name, icon='upload-alt' %}
+      </li>
+      {% endif %}
+	</ul>
+  </div>
 {% endblock %}
 
 {% block primary_content_inner %}
@@ -21,7 +40,8 @@
   	    <th>URL</th>
   	    <th>Type</th>
   	    <th>Authorization</th>
-  	    <th>Last update</th>
+  	    <th>Last sync on (UTC)</th>
+  	    <th>Status</th>
   	    <th>Action</th>
   	  </tr>
   	  {% for cat in catalogs %}
@@ -35,7 +55,8 @@
           {{ _("No") }}
         {% endif %}  
         </td>
-        <td>TODO</td>
+        <td>{{ h.format_datetime(cat.last_updated) or _('N/A') }}</td>
+        <td>{{ cat.status_string() }}</td>
         <td>
           <div class="dropdown btn-group">
 		    <a href="#" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
@@ -45,10 +66,10 @@
 			</a>
 			<ul class="dropdown-menu">
 			  <li>
-			    {% link_for _('Edit'), controller=controller, action='edit', id=pkg_dict.name, cat_id=cat.id %}
+			    {% link_for _('Edit'), controller=controller, action='edit', id=pkg_dict.name, cat_id=cat.id, icon='edit' %}
 			  </li>
 			  <li>
-			    {% link_for _('Delete'), controller=controller, action='delete', id=pkg_dict.name, cat_id=cat.id %}
+			    {% link_for _('Delete'), controller=controller, action='delete', id=pkg_dict.name, cat_id=cat.id, icon='minus' %}
 			  </li>
 			</ul>
 		  </div>
