@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from babel.messages import frontend as babel
 
 version = '0.3.0'
 
@@ -25,6 +26,7 @@ setup(
                         'ckanext.publishing'
                         ],
     package_data={'': [
+                       'i18n/*/LC_MESSAGES/*.po',
                        'fanstatic/*.js',
                        'fanstatic/*.css',
                        'templates/*.html',
@@ -35,6 +37,16 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['odn-ckancommons>=0.3.0-SNAPSHOT'],
+    cmdclass = {'compile_catalog': babel.compile_catalog,
+                'extract_messages': babel.extract_messages,
+                'init_catalog': babel.init_catalog,
+                'update_catalog': babel.update_catalog}, # babel
+    message_extractors={
+        'ckanext': [
+            ('**.py', 'python', None),
+            ('**.html', 'ckan', None),
+        ]
+    }, # for babel.extract_messages, says which are source files for translating
     entry_points=\
     """
     [ckan.plugins]
