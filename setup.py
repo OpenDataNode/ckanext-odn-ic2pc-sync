@@ -44,7 +44,7 @@ setup(
     message_extractors={
         'ckanext': [
             ('**.py', 'python', None),
-            ('**.html', 'ckan', None),
+            ('**.html', 'jinja2', None),
         ]
     }, # for babel.extract_messages, says which are source files for translating
     entry_points=\
