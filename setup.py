@@ -1,5 +1,4 @@
 from setuptools import setup, find_packages
-from babel.messages import frontend as babel
 
 version = '0.3.0'
 
@@ -37,10 +36,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=['odn-ckancommons>=0.3.0-SNAPSHOT'],
-    cmdclass = {'compile_catalog': babel.compile_catalog,
-                'extract_messages': babel.extract_messages,
-                'init_catalog': babel.init_catalog,
-                'update_catalog': babel.update_catalog}, # babel
     message_extractors={
         'ckanext': [
             ('**.py', 'python', None),
