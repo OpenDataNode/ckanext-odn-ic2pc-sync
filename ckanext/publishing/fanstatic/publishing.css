@@ -1,0 +1,29 @@
+div.publ_header {
+	width: 100%;
+	text-align: center;
+	font-weight: bold;
+}
+
+div.publ_delete_confirm {
+	width: 100%;
+	text-align: center;
+	font-weight: bold;
+	font-size: larger;
+}
+
+table.publ_catalogs {
+	width: 100%;
+	text-align: center;
+	border: 1px solid;
+	border-spacing: 0px;
+}
+
+table.publ_catalogs th {
+	background-color: #CCCCCC;
+	vertical-align: middle;
+}
+
+table.publ_catalogs td {
+	background-color: #EEEEEE;
+	vertical-align: middle;
+}
