@@ -61,7 +61,7 @@ class CkanSync():
                 if not found_organization:
                     result = dst_ckan.organization_create(ORGANIZATION_NAME)
                     # set comsode organization id
-                    dataset_obj.owner_org.append(str(result['id']))
+                    dataset_obj.owner_org = result['id']
                 else:
                     result = dst_ckan.organization_show(ORGANIZATION_NAME)
                     dataset_obj.owner_org = result['id']
