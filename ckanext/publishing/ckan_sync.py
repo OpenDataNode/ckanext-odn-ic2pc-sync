@@ -12,7 +12,6 @@ from odn_ckancommons.JSON_Dataset import resource_create_update_with_upload,\
     filter_resource_extras
 log = logging.getLogger('ckanext')
 
-ORGANIZATION_NAME = "comsode"
 
 class CkanSync():
     
@@ -38,38 +37,41 @@ class CkanSync():
         dst_ckan = CkanAPIWrapper('http://dst_ckan.com', 'api_key')
         CkanSync().push(src_ckan, dst_ckan)
         '''
-        log.info('pushing datasets from {0} to {1}'.format(src_ckan.url, dst_ckan.url,))
-        
+        log.info('pushing datasets from {0} to {1}'.format(src_ckan.url, dst_ckan.url, ))
+
         if not package_ids:
             package_ids = src_ckan.get_all_package_ids()
-        
-        dataset_num = len(package_ids)        
-        log.info('number of datasets: {0}'.format(dataset_num,))
-    
-        for i, dataset_id in enumerate(package_ids, start = 1):
+
+        dataset_num = len(package_ids)
+        log.info('number of datasets: {0}'.format(dataset_num, ))
+
+        for i, dataset_id in enumerate(package_ids, start=1):
             log.info('[{0} / {1}] processing dataset_obj with id/name (source ckan) {2}'.format(i, dataset_num, dataset_id))
             package = src_ckan.get_package(dataset_id)
             if not package:
                 log.error("No dataset found with id/name = {0}".format(dataset_id))
                 continue
             dataset_obj = load_from_dict(package)
-            
+            organization = dataset_obj.organization
+
             try:
                 found, dst_package_id = dst_ckan.package_search_by_name(dataset_obj)
-                found_organization, organization = dst_ckan.find_organization(ORGANIZATION_NAME)
+                # get information (name) about organization from source
+                found_organization, __ = dst_ckan.find_organization(organization['name'])
 
                 if not found_organization:
-                    result = dst_ckan.organization_create(ORGANIZATION_NAME)
+                    result = dst_ckan.organization_create(organization['name'])
                     # set comsode organization id
                     dataset_obj.owner_org = result['id']
                 else:
-                    result = dst_ckan.organization_show(ORGANIZATION_NAME)
+                    result = dst_ckan.organization_show(organization['name'])
                     dataset_obj.owner_org = result['id']
-                
+
                 filter_package_extras(dataset_obj, whitelist_package_extras)
-                
+
                 if found:
-                    dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())['id']
+                    dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())[
+                        'id']
                     log.info('[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
                     dst_package_id = dst_ckan.package_create(dataset_obj)['id']
