@@ -1,0 +1,4 @@
+numpy -  sudo apt-get install python-numpy
+cython - sudo apt-get install cython
+sparqlwrapper-1.6.4
+unicode-slugify-0.1.1

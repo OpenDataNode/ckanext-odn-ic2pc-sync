@@ -1,0 +1,20 @@
+# http://travis-ci.org/RDFLib/sparqlwrapper
+
+branches:
+    only:
+        - master
+
+language: python
+
+python:
+    - 2.6
+    - 2.7
+    - 3.2
+    - 3.3
+    - 3.4
+
+install:
+    - pip install .
+    - pip install -r requirements.txt
+
+script: ./tests.sh 
