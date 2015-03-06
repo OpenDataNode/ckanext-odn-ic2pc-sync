@@ -8,7 +8,7 @@ import sys
 
 import logging
 from ckanext.model.external_catalog import external_catalog_table,\
-    migrate_to_v0_3
+    migrate_to_v0_3, migrate_to_v0_4
 log = logging.getLogger('ckanext')
 
 
@@ -37,8 +37,11 @@ class PublishingCmd(CkanCommand):
         publishing_cmd initdb
         - initializes DB tables needed for THIS extension
         
-        publishing_cmd migrate_to_v0.3
-        - updates db model from v0.2 to v0.3
+        publishing_cmd migrate_to_v0.3.0
+        - updates db model from v0.2.x to v0.3.0
+        
+        publishing_cmd migrate_to_v0.4.0
+        - updates db model from v0.3.x to v0.4
         
         publishing_cmd uninstall
         - drops tables in DB needed for THIS extension
@@ -120,6 +123,11 @@ class PublishingCmd(CkanCommand):
             log.info('Starting migration of DB to v0.3.0')
             migrate_to_v0_3()
             log.info('End of migration of DB to v0.3.0')
+            
+        elif cmd == 'migrate_to_v0.4':
+            log.info('Starting migration of DB to v0.4.0')
+            migrate_to_v0_4()
+            log.info('End of migration of DB to v0.4.0')
         
         elif cmd == 'uninstall':
             log.info('Starting uninstall command')
