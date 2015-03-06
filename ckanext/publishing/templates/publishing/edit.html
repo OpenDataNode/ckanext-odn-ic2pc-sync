@@ -19,12 +19,14 @@
   {% set url = catalog.url %}
   {% set req_auth = catalog.authorization_required %}
   {% set auth = catalog.authorization %}
+  {% set org_id = catalog.ext_org_id %}
 {% else %}
   {% set cat_id = '' %}
   {% set type = 'CKAN' %}
   {% set url = '' %}
   {% set req_auth = true %}
   {% set auth = '' %}
+  {% set org_id = '' %}
 {% endif %}
 
 {% block primary_content_inner %}
@@ -43,6 +45,7 @@
     {{ form.input('url', label=_('URL of external catalog'), placeholder=_('http://...'), value=url, error=error, is_required=true) }}
     {{ form.checkbox('authorization_required', label=_('requires authorization'), checked=req_auth) }}
     {{ form.input('authorization', label=_('Authorization (API key)'), placeholder=_('API key'), value=auth, error=error, is_required=false) }}
+    {{ form.input('org_id', label=_('Organization'), placeholder=_('organization id or name'), value=org_id, error=error, is_required=false) }}
     <div class="form-actions">
       {% link_for _('Back'), controller=controller, action='show', id=c.pkg_dict.name, class_='btn' %}
 	  <input type="submit" class="btn btn-primary" value="{{ submit_label or _('Save') }}" />
