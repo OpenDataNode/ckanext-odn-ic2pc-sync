@@ -124,7 +124,7 @@ class PublishingCmd(CkanCommand):
             migrate_to_v0_3()
             log.info('End of migration of DB to v0.3.0')
             
-        elif cmd == 'migrate_to_v0.4':
+        elif cmd == 'migrate_to_v0.4.0':
             log.info('Starting migration of DB to v0.4.0')
             migrate_to_v0_4()
             log.info('End of migration of DB to v0.4.0')
@@ -138,6 +138,8 @@ class PublishingCmd(CkanCommand):
             else:
                 log.info("Table external_catalog doesn't exist")
             log.info('End of uninstall command')
+        else:
+            log.info('No command with name \'{0}\''.format(cmd))
         
             
             
