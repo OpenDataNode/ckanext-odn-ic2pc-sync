@@ -72,11 +72,16 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
     :type dataset: dictionary
     '''
     status = STATUS.index("OK")
+    errors = None
     try:
         if external_catalog.type == 'CKAN':
             log.debug('sync to catalog = {0}'.format(external_catalog.url))
             to_ckan = CkanAPIWrapper(external_catalog.url, external_catalog.authorization)
-            CkanSync().push(from_ckan, to_ckan, [dataset['name']], package_extras_whitelist, resource_extras_whitelist)
+            errors = CkanSync().push(from_ckan, to_ckan, [dataset['name']], \
+                                    package_extras_whitelist, resource_extras_whitelist, \
+                                    org_id_name=external_catalog.ext_org_id)
+            if errors:
+                status = STATUS.index("FAILED")
         else:
             log.debug('Catalog {0} is not CKAN type'.format(external_catalog.url))
     except URLError, e:
@@ -89,6 +94,7 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
     external_catalog.last_updated = datetime.utcnow()
     external_catalog.status = status
     external_catalog.save()
+    return errors
         
 
 def dataset_update(context, data_dict=None):

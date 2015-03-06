@@ -47,6 +47,7 @@ class CkanSync():
         dataset_num = len(package_ids)
         log.debug('number of datasets: {0}'.format(dataset_num, ))
 
+        errors = []
         for i, dataset_id in enumerate(package_ids, start=1):
             log.debug('[{0} / {1}] processing dataset_obj with id/name (source ckan) {2}'.format(i, dataset_num, dataset_id))
             package = src_ckan.get_package(dataset_id)
@@ -61,26 +62,32 @@ class CkanSync():
                 organization = dataset_obj.organization
                 org_name = organization.get('name')
 
+            phase = '[Obtaining dataset]'
             try:
                 found, dst_package_id = dst_ckan.package_search_by_name(dataset_obj)
                 # get information (name) about organization from source
+                phase = '[Obtaining organization]'
                 found_organization, __ = dst_ckan.find_organization(org_name)
 
                 if not found_organization:
+                    phase = '[Creating organization]'
                     result = dst_ckan.organization_create(org_name)
                     # set comsode organization id
                     dataset_obj.owner_org = result['id']
                 else:
+                    phase = '[Obtaining organization]'
                     result = dst_ckan.organization_show(org_name)
                     dataset_obj.owner_org = result['id']
 
                 filter_package_extras(dataset_obj, whitelist_package_extras)
 
                 if found:
+                    phase = '[Updating dataset]'
                     dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())[
                         'id']
                     log.debug('[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
+                    phase = '[Creating dataset]'
                     dst_package_id = dst_ckan.package_create(dataset_obj)['id']
                     log.debug('[{0} / {1}] dataset_obj {2} created OK'.format(i, dataset_num, dataset_id))
                 
@@ -89,17 +96,25 @@ class CkanSync():
                 for resource in dataset_obj.resources:
                     if not resource['name']:
                         resource['name'] = ''
+                    
+                    phase = '[Creating / updating resource with name \'{0}\']'.format(resource['name'])
                     log.debug('creating / updating resource: name={0}'.format(resource['name'].encode('utf8')))
                     resource_create_update_with_upload(dst_ckan, resource, dst_package_id, whitelist_resource_extras)
                     resource_names.append(resource['name'])
                 
+                phase = '[Deleting resources]'
                 log.debug('deleting resources with names not in {0}'.format(resource_names))
                 # delete resource not in src_ckan
                 dst_ckan.delete_resources_not_with_name_in(resource_names, dst_package_id)
                 
                     
-            except urllib2.HTTPError,e:
-                log.error(e)
+            except Exception,e:
+                msg = '{0} {1}'.format(phase, str(e))
+                if isinstance(e, urllib2.HTTPError):
+                    log.error('error response: {0}'.format(e.fp.read()))
+                log.error(msg)
+                errors.append(msg)
+        return errors
     
     
   

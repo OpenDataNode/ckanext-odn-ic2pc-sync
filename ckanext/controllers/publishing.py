@@ -213,8 +213,14 @@ def sync(dataset, public=True):
             log.debug("sync to public CKAN: {0}".format(dst_ckan))
             default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
             
-            CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
+            errors = CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
                         package_extras_whitelist, resource_extras_whitelist)
+            if errors:
+                msg = '<p>Error occured while synchronizing external catalog:</p><ul>'
+                for err in errors:
+                    msg += '<li>public catalog - {0}</li>'.format(err)
+                msg += '</ul>'
+                h.flash_error(msg, True)
         except URLError, e:
             log.error("Couldn't finish synchronization: {0}".format(e))
         except Exception, e:
@@ -223,6 +229,16 @@ def sync(dataset, public=True):
         ext_catalogs = ExternalCatalog.by_dataset_id(dataset['id'])
         log.debug("sync to dataset specified external catalogs ({0})".format(len(ext_catalogs)))
         
+        errors = []
         for catalog in ext_catalogs:
-            sync_ext_catalog(from_ckan, catalog, dataset)
+            err = sync_ext_catalog(from_ckan, catalog, dataset)
+            if err:
+                errors.append('{0} - {1}'.format(catalog.url, err[0]))
+        
+        if errors:
+            msg = '<p>Error occured while synchronizing external catalogs:</p><ul>'
+            for err in errors:
+                msg += '<li>{0}</li>'.format(err)
+            msg += '</ul>'
+            h.flash_error(msg, True)
     
