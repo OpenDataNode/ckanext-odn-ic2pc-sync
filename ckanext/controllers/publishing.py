@@ -39,6 +39,12 @@ package_extras_whitelist = config.get('odn.ic2pc.package.extras.whitelist', '').
 resource_extras_whitelist = config.get('odn.ic2pc.resource.extras.whitelist', '').split(' ')
 
 
+def get_url_without_slash_at_the_end(url):
+    if url and url.endswith("/"):
+        return url[:-1]
+    else:
+        return url
+
 
 class PublishingController(base.BaseController):
 
@@ -132,8 +138,8 @@ class PublishingController(base.BaseController):
 
     def save(self, id):
         data = request.POST
-        type = data[u'type']
-        url = data['url']
+        type = data.get(u'type', '')
+        url = get_url_without_slash_at_the_end(data.get(u'url', ''))
         auth_req = False
         if u'authorization_required' in data:
             auth_req = True
