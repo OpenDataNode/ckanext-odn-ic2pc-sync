@@ -39,6 +39,12 @@ package_extras_whitelist = config.get('odn.ic2pc.package.extras.whitelist', '').
 resource_extras_whitelist = config.get('odn.ic2pc.resource.extras.whitelist', '').split(' ')
 
 
+def get_url_without_slash_at_the_end(url):
+    if url and url.endswith("/"):
+        return url[:-1]
+    else:
+        return url
+
 
 class PublishingController(base.BaseController):
 
@@ -132,8 +138,9 @@ class PublishingController(base.BaseController):
 
     def save(self, id):
         data = request.POST
-        type = data[u'type']
-        url = data['url']
+        type = data.get(u'type', '')
+        url = get_url_without_slash_at_the_end(data.get(u'url', ''))
+        org_id = data.get(u'org_id', '')
         auth_req = False
         if u'authorization_required' in data:
             auth_req = True
@@ -157,13 +164,14 @@ class PublishingController(base.BaseController):
             
         try:
             if not data[u'catalog_id']:
-                ext_catalog = ExternalCatalog(id, type, url, auth_req, auth)
+                ext_catalog = ExternalCatalog(id, type, url, auth_req, auth, ext_org_id=org_id)
             else:
                 ext_catalog = ExternalCatalog.by_id(data[u'catalog_id'])
                 ext_catalog.type = type
                 ext_catalog.url = url
                 ext_catalog.authorization_required = auth_req
                 ext_catalog.authorization = auth
+                ext_catalog.ext_org_id = org_id
             
             ext_catalog.save()
             h.flash_success(_("Successfully created / edited catalog {url}").format(url=url))
@@ -205,8 +213,14 @@ def sync(dataset, public=True):
             log.debug("sync to public CKAN: {0}".format(dst_ckan))
             default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
             
-            CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
+            errors = CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
                         package_extras_whitelist, resource_extras_whitelist)
+            if errors:
+                msg = '<p>Error occured while synchronizing external catalog:</p><ul>'
+                for err in errors:
+                    msg += '<li>public catalog - {0}</li>'.format(err)
+                msg += '</ul>'
+                h.flash_error(msg, True)
         except URLError, e:
             log.error("Couldn't finish synchronization: {0}".format(e))
         except Exception, e:
@@ -215,6 +229,16 @@ def sync(dataset, public=True):
         ext_catalogs = ExternalCatalog.by_dataset_id(dataset['id'])
         log.debug("sync to dataset specified external catalogs ({0})".format(len(ext_catalogs)))
         
+        errors = []
         for catalog in ext_catalogs:
-            sync_ext_catalog(from_ckan, catalog, dataset)
+            err = sync_ext_catalog(from_ckan, catalog, dataset)
+            if err:
+                errors.append('{0} - {1}'.format(catalog.url, err[0]))
+        
+        if errors:
+            msg = '<p>Error occured while synchronizing external catalogs:</p><ul>'
+            for err in errors:
+                msg += '<li>{0}</li>'.format(err)
+            msg += '</ul>'
+            h.flash_error(msg, True)
     

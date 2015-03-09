@@ -51,15 +51,22 @@ external_catalog table created successfully	/ external_catalog table already exi
 End of db initialization
 ```
 
-Migrating DB from v0.2.0 to v0.3.0
+Migrating DB from v0.2.x to v0.3.0
 -------
-There were changes in DB model with migrating to v0.3.0, to to function normally, its required to start this command
+There were changes in DB model with migrating to v0.3.0, to function normally, its required to start this command
 
 ```
 paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd migrate_to_v0.3.0 --config=/etc/ckan/default/production.ini
 ```
 
 If its clean install, starting the migration command isn't necessary.
+
+Migrating DB from v0.3.x to v0.4.0
+-------
+
+```
+paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd migrate_to_v0.4.0 --config=/etc/ckan/default/production.ini
+```
 
 Uninstall
 -------
