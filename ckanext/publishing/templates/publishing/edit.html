@@ -38,13 +38,12 @@
       {{ _('Add new external catalog') }}
     {% endif %}
   </div>
-  
   <form method='post' class="module-content form-horizontal" action="{% url_for controller=controller, action=form_action, id=c.pkg_dict.id %}">
   	<input type="hidden" name="catalog_id" value="{{ cat_id }}"/>
     {{ form.select('type', label=_('Type of catalog'), options=[{'value':'CKAN', 'text':'CKAN'}], selected=type, error=error, is_required=true) }}
     {{ form.input('url', label=_('URL of external catalog'), placeholder=_('http://...'), value=url, error=error, is_required=true) }}
     {{ form.checkbox('authorization_required', label=_('requires authorization'), checked=req_auth) }}
-    {{ form.input('authorization', label=_('Authorization (API key)'), placeholder=_('API key'), value=auth, error=error, is_required=false) }}
+    {{ form.input('authorization', label=_('Authorization (API key)'), placeholder=_('API key'), value=auth, type='password', error=error, is_required=false) }}
     {{ form.input('org_id', label=_('Organization'), placeholder=_('organization id or name'), value=org_id, error=error, is_required=false) }}
     <div class="form-actions">
       {% link_for _('Back'), controller=controller, action='show', id=c.pkg_dict.name, class_='btn' %}
