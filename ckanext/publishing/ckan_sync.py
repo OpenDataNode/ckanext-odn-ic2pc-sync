@@ -113,8 +113,9 @@ class CkanSync():
                 phase = '[Deleting resources]'
                 log.debug('deleting resources with names not in {0}'.format(resource_names))
                 # delete resource not in src_ckan
-                dst_ckan.delete_resources_not_with_name_in(resource_names, dst_package_id)
-                
+                del_errs = dst_ckan.delete_resources_not_with_name_in(resource_names, dst_package_id)
+                log_errors(del_errs)
+                errors += del_errs                
                     
             except Exception,e:
                 msg = '{0} {1}'.format(phase, str(e))
@@ -123,6 +124,10 @@ class CkanSync():
                 log.error(e)
                 errors.append(msg)
         return errors
+
+def log_errors(errors):
+    for e in errors:
+        log.error(e)
 
     
 def is_datastore_resource(resource):
