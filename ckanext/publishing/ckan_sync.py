@@ -169,10 +169,13 @@ def update_datastore_resource(src_ckan, dst_ckan, src_resource, dst_resource):
         resp = datastore_upsert_in_chunks(src_ckan,
                                           datastore_res['records'],
                                           dst_ckan,
-                                          dst_resource['id'])
+                                          dst_resource['id'],
+                                          total)
         # all the others if there is any
-        datastore_upsert_in_chunks(src_ckan, src_res_id,
-                                   dst_ckan, dst_resource['id'],
+        datastore_upsert_in_chunks(src_ckan,
+                                   src_res_id,
+                                   dst_ckan,
+                                   dst_resource['id'],
                                    total)
         # TODO remove records not updated?
 
