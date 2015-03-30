@@ -1,9 +1,10 @@
 
+import ckanext.datastore.db as db
 import ckan.logic as logic
-import ckan.lib.helpers as h
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import pylons.config as config
+import re
 import routes.mapper
 import logging
 import threading
@@ -19,6 +20,7 @@ log = logging.getLogger('ckanext')
 
 GET = dict(method=['GET'])
 POST = dict(method=['POST'])
+NotFound = toolkit.ObjectNotFound
 
 get_action = logic.get_action
 
@@ -29,13 +31,101 @@ dst_api_key = config.get('odn.ic2pc.dst.ckan.api.key', None)
 package_extras_whitelist = config.get('odn.ic2pc.package.extras.whitelist', '').split(' ')
 resource_extras_whitelist = config.get('odn.ic2pc.resource.extras.whitelist', '').split(' ')
 
-
+def check_and_bust(key, dict):
+    if key not in dict or not dict[key]:
+        raise NotFound("Key '{0}' was not found or has no value set.".format(key))
 
 def get_catalogs_to_sync(dataset):
     # we need package_id!
     package_id = dataset['id']
     ext_catalogs = ExternalCatalog.by_dataset_id(package_id)
     return ext_catalogs
+
+
+@toolkit.side_effect_free
+def datastore_primary_key(context, data_dict=None):
+    """Checks primary keys for resource, has to have rights to display dataset
+    
+    :param id: resource id
+    :return: list of strings - primary key column names
+    """
+    check_and_bust('id', data_dict)
+    id = data_dict['id']
+    toolkit.check_access('resource_show', context, data_dict)
+    
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
+    engine = db._get_engine(data_dict)
+    context['connection'] = engine.connect()
+    
+    data_dict = {'resource_id':id}
+    try:
+        p_keys = db._get_unique_key(context, data_dict)
+    finally:
+        context['connection'].close()
+    
+    return p_keys
+
+@toolkit.side_effect_free
+def datastore_indexes(context, data_dict=None):
+    """Checks indexes for resource, has to have rights to display dataset
+    
+    :param id: resource id
+    :return: list of strings - primary key column names
+    """
+    check_and_bust('id', data_dict)
+    id = data_dict['id']
+    toolkit.check_access('resource_show', context, data_dict)
+    
+    data_dict['connection_url'] = config['ckan.datastore.write_url']
+    engine = db._get_engine(data_dict)
+    context['connection'] = engine.connect()
+    
+    data_dict = {'resource_id':id}
+    try:
+        # select from drop_indexes Found at: ckanext.datastore.db
+        # difference: idx.indisunique = false
+        sql_get_index_string = u"""
+        SELECT
+            i.relname AS index_name
+        FROM
+            pg_class t,
+            pg_class i,
+            pg_index idx
+        WHERE
+            t.oid = idx.indrelid
+            AND i.oid = idx.indexrelid
+            AND t.relkind = 'r'
+            AND idx.indisunique = false
+            AND idx.indisprimary = false
+            AND t.relname = %s
+        """
+        indexes = context['connection'].execute(
+                    sql_get_index_string, data_dict['resource_id']).fetchall()
+    finally:
+        context['connection'].close()
+    
+    return get_index_names(id, indexes)
+
+def get_index_names(res_id, indexes):
+    """
+    input: [
+        (resourceid_INDEXNAME_idx),
+        (resourceid_INDEXNAME_idx1),
+        (resourceid__full_text_idx),
+    ]
+    for postgres < 9.0 can start idx_
+    also doesn't return the full text one
+    """
+    indexes_to_return = []
+    for index in indexes:
+        index = index[0]
+        to_replace = [res_id + '_', '_' + res_id, 'idx[0-9]*_', '_idx[0-9]*']
+        for rep in to_replace:
+            index = re.sub(rep, r"", index)
+            
+        if '_full_text' != index and index not in indexes_to_return:
+            indexes_to_return.append(index)
+    return indexes_to_return
 
 
 def start_sync(context, dataset):
@@ -173,7 +263,9 @@ class PublishingPlugin(plugins.SingletonPlugin):
         return {'package_create': dataset_create,
                 'package_update': dataset_update,
                 'resource_create': res_create,
-                'resource_update': res_update}
+                'resource_update': res_update,
+                'datastore_primary_key':datastore_primary_key,
+                'datastore_indexes':datastore_indexes}
 
     
     def update_config(self, config):
