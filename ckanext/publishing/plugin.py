@@ -25,8 +25,14 @@ NotFound = toolkit.ObjectNotFound
 get_action = logic.get_action
 
 
-src_ckan = config.get('odn.ic2pc.src.ckan.url', None)
-dst_ckan = config.get('odn.ic2pc.dst.ckan.url', None)
+def get_url_without_slash_at_the_end(url):
+    if url and url.endswith("/"):
+        return url[:-1]
+    else:
+        return url
+
+src_ckan = get_url_without_slash_at_the_end(config.get('odn.ic2pc.src.ckan.url', None))
+dst_ckan = get_url_without_slash_at_the_end(config.get('odn.ic2pc.dst.ckan.url', None))
 dst_api_key = config.get('odn.ic2pc.dst.ckan.api.key', None)
 package_extras_whitelist = config.get('odn.ic2pc.package.extras.whitelist', '').split(' ')
 resource_extras_whitelist = config.get('odn.ic2pc.resource.extras.whitelist', '').split(' ')
