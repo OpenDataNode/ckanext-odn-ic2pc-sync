@@ -150,7 +150,7 @@ def update_datastore_resource(src_ckan, dst_ckan, src_resource, dst_resource):
         is_initialized = True
     except urllib2.HTTPError, e:
         if e.code == 400: # Bad Request
-            raise Exception(_('Destination catalog has no datastore configured!'))
+            raise Exception('Destination catalog has no datastore configured!')
         if e.code != 404: # raise except NotFound error
             raise e
     
