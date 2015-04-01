@@ -231,9 +231,9 @@ def sync(dataset, public=True):
         
         errors = []
         for catalog in ext_catalogs:
-            err = sync_ext_catalog(from_ckan, catalog, dataset)
-            if err:
-                errors.append('{0} - {1}'.format(catalog.url, err[0]))
+            errs = sync_ext_catalog(from_ckan, catalog, dataset)
+            for err in errs:
+                errors.append('{0} - {1}'.format(catalog.url, err))
         
         if errors:
             msg = '<p>Error occured while synchronizing external catalogs:</p><ul>'

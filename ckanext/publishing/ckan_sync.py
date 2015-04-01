@@ -97,18 +97,24 @@ class CkanSync():
                 # now resource_names
                 resource_names = []
                 for resource in dataset_obj.resources:
+                    phase = '[Resource name check]'
                     if not resource['name']:
-                        resource['name'] = ''
+                        e = Exception('Failed to synchronize resource: name is missing!')
+                        errors.append(process_error(phase, e))
+                        continue
                     
-                    phase = '[Creating / updating resource with name \'{0}\']'.format(resource['name'])
-                    log.debug('creating / updating resource: name={0}'.format(resource['name'].encode('utf8')))
-                    response = resource_create_update_with_upload(dst_ckan, resource, dst_package_id, whitelist_resource_extras)
-                    resource_names.append(resource['name'])
-                    
-                    if is_datastore_resource(response):
-                        phase = '[Init/update of datastore resource]'
-                        log.debug('initializing / updating datastore resource')
-                        update_datastore_resource(src_ckan, dst_ckan, resource, response)
+                    try:
+                        phase = '[Creating / updating resource with name \'{0}\']'.format(resource['name'])
+                        log.debug('creating / updating resource: name={0}'.format(resource['name'].encode('utf8')))
+                        response = resource_create_update_with_upload(dst_ckan, resource, dst_package_id, whitelist_resource_extras)
+                        resource_names.append(resource['name'])
+                        
+                        if is_datastore_resource(response):
+                            phase = '[Create / update of datastore resource with name \'{0}\']'.format(resource['name'])
+                            log.debug('creating / updating datastore resource')
+                            update_datastore_resource(src_ckan, dst_ckan, resource, response)
+                    except Exception, e:
+                        errors.append(process_error(phase, e))
                 
                 phase = '[Deleting resources]'
                 log.debug('deleting resources with names not in {0}'.format(resource_names))
@@ -117,13 +123,20 @@ class CkanSync():
                 log_errors(del_errs)
                 errors += del_errs                
                     
-            except Exception,e:
-                msg = '{0} {1}'.format(phase, str(e))
-                if isinstance(e, urllib2.HTTPError):
-                    log.error('error response: {0}'.format(e.fp.read()))
-                log.error(e)
-                errors.append(msg)
+            except Exception, e:
+                errors.append(process_error(phase, e))
         return errors
+
+
+def process_error(phase, e):
+    ''' Logs the error and return formatted error msg
+    '''
+    if isinstance(e, urllib2.HTTPError):
+        log.error('error response: {0}'.format(e.fp.read()))
+    else:
+        log.error(e)
+    return '{0} {1}'.format(phase, str(e))
+
 
 def log_errors(errors):
     for e in errors:
