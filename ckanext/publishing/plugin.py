@@ -168,11 +168,16 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
     :type dataset: dictionary
     '''
     status = STATUS.index("OK")
-    errors = None
+    errors = []
+    authorization = None
     try:
         if external_catalog.type == 'CKAN':
             log.debug('sync to catalog = {0}'.format(external_catalog.url))
-            to_ckan = CkanAPIWrapper(external_catalog.url, external_catalog.authorization)
+            
+            if external_catalog.authorization_required:
+                authorization = external_catalog.authorization
+            
+            to_ckan = CkanAPIWrapper(external_catalog.url, authorization)
             errors = CkanSync().push(from_ckan, to_ckan, [dataset['name']], \
                                     package_extras_whitelist, resource_extras_whitelist, \
                                     org_id_name=external_catalog.ext_org_id)
@@ -182,10 +187,12 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
             log.debug('Catalog {0} is not CKAN type'.format(external_catalog.url))
     except URLError, e:
         status = STATUS.index("FAILED")
-        log.error("Couldn't finish synchronization: {0}".format(e))
+        log.exception(e)
+        errors = ["Couldn't finish synchronization: {0}".format(e.reason)]
     except Exception, e:
         status = STATUS.index("FAILED")
         log.exception(e)
+        errors = ["Couldn't finish synchronization: {0}".format(e)]
         
     external_catalog.last_updated = datetime.utcnow()
     external_catalog.status = status
@@ -300,6 +307,7 @@ class PublishingPlugin(plugins.SingletonPlugin):
             
             m.connect('/dataset/{id}/publishing/sync_public', action='sync_public')
             m.connect('/dataset/{id}/publishing/sync_all_ext', action='sync_all_ext')
+            m.connect('/dataset/{id}/publishing/sync_ext/{cat_id}', action='sync_ext')
         
         return route_map
     

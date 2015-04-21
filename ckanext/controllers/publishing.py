@@ -203,6 +203,23 @@ class PublishingController(base.BaseController):
         else:
             h.flash_notice(_("Synchronization not started, the dataset isn't public."))
         base.redirect(h.url_for('dataset_publishing', id=id))
+
+
+    def sync_ext(self, id, cat_id):
+        self._load(id)
+        log.debug("syncronizing specific ext catalog {0}".format(cat_id))
+        if not c.pkg_dict['private']:
+            from_ckan = CkanAPIWrapper(src_ckan, None)
+            ext_cat = ExternalCatalog.by_id(cat_id)
+            errors = []
+            errs = sync_ext_catalog(from_ckan, ext_cat, c.pkg_dict)
+            for err in errs:
+                errors.append('{0} - {1}'.format(ext_cat.url, err))
+            flash_errors_for_ext_cat(errors)
+            h.flash_notice(_('Synchronization with public catalog ended.'))
+        else:
+            h.flash_notice(_("Synchronization not started, the dataset isn't public."))
+        base.redirect(h.url_for('dataset_publishing', id=id))
         
     
 def sync(dataset, public=True):
@@ -216,7 +233,7 @@ def sync(dataset, public=True):
             errors = CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
                         package_extras_whitelist, resource_extras_whitelist)
             if errors:
-                msg = '<p>Error occured while synchronizing external catalog:</p><ul>'
+                msg = '<p>Error occured while synchronizing catalog:</p><ul>'
                 for err in errors:
                     msg += '<li>public catalog - {0}</li>'.format(err)
                 msg += '</ul>'
@@ -235,10 +252,13 @@ def sync(dataset, public=True):
             for err in errs:
                 errors.append('{0} - {1}'.format(catalog.url, err))
         
-        if errors:
-            msg = '<p>Error occured while synchronizing external catalogs:</p><ul>'
-            for err in errors:
-                msg += '<li>{0}</li>'.format(err)
-            msg += '</ul>'
-            h.flash_error(msg, True)
+        flash_errors_for_ext_cat(errors)
+
+def flash_errors_for_ext_cat(errors):
+    if errors:
+        msg = '<p>Error occured while synchronizing external catalog:</p><ul>'
+        for err in errors:
+            msg += '<li>{0}</li>'.format(err)
+        msg += '</ul>'
+        h.flash_error(msg, True)
     

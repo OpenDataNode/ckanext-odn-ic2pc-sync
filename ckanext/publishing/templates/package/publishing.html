@@ -71,6 +71,9 @@
 			  <li>
 			    {% link_for _('Delete'), controller=controller, action='delete', id=pkg_dict.name, cat_id=cat.id, icon='minus' %}
 			  </li>
+			  <li>
+			    {% link_for _('Synchronize now'), controller=controller, action='sync_ext', id=pkg_dict.name, cat_id=cat.id, icon='arrow-right' %}
+			  </li>
 			</ul>
 		  </div>
         </td>
