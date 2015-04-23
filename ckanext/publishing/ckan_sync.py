@@ -103,11 +103,12 @@ class CkanSync():
                         errors.append(process_error(phase, e))
                         continue
                     
+                    resource_names.append(resource['name'])
+                    
                     try:
                         phase = '[Creating / updating resource with name \'{0}\']'.format(resource['name'])
                         log.debug('creating / updating resource: name={0}'.format(resource['name'].encode('utf8')))
                         response = resource_create_update_with_upload(dst_ckan, resource, dst_package_id, whitelist_resource_extras)
-                        resource_names.append(resource['name'])
                         
                         if is_datastore_resource(response):
                             phase = '[Create / update of datastore resource with name \'{0}\']'.format(resource['name'])
