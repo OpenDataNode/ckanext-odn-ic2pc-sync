@@ -9,6 +9,8 @@ Features:
 * Allows to add / remove / edit external catalogs to dataset
 * Starts synchronization with default (from .ini file) and external catalogs whenever package is created/updated or package resource was created / updated / deleted
 * Allows to start the synchronization to public or external catalogs manually from publishing tab
+* Added new API calls: datastore_primary_key, datastore_indexes
+* Added datastore resource synchronization, but can't be used as harvesting for datastore resources because of the new datastore API calls 
 
 Installation
 -------
@@ -121,12 +123,6 @@ example:
 ```
 
 this example will check for pending jobs every fifteen minutes
-
-TODO
--------
-
-* when automatic synchronization start it always updates the whole dataset, but if resource changes it's not necessary to update dataset just the resource 
-
 
 Internationalization (i18n)
 -------

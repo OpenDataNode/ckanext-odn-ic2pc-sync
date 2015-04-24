@@ -22,7 +22,7 @@ external_catalog_table = Table('external_catalog', metadata,
             Column('authorization_required', types.BOOLEAN, nullable=False),
             Column('authorization', types.UnicodeText, nullable=True),
             Column('last_updated', types.DateTime, nullable=True),
-            Column('status', types.SmallInteger(0), nullable=False),
+            Column('status', types.SmallInteger(), nullable=False),
             Column('ext_org_id', types.UnicodeText, nullable=True)
             )
 
