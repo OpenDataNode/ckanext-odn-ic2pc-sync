@@ -142,8 +142,11 @@ class PublishingController(base.BaseController):
         url = get_url_without_slash_at_the_end(data.get(u'url', ''))
         org_id = data.get(u'org_id', '')
         auth_req = False
+        create_as_private = False
         if u'authorization_required' in data:
             auth_req = True
+        if u'create_as_private' in data:
+            create_as_private = True
         auth = data[u'authorization']
         
         missing = []
@@ -164,7 +167,7 @@ class PublishingController(base.BaseController):
             
         try:
             if not data[u'catalog_id']:
-                ext_catalog = ExternalCatalog(id, type, url, auth_req, auth, ext_org_id=org_id)
+                ext_catalog = ExternalCatalog(id, type, url, auth_req, auth, ext_org_id=org_id, create_as_private=create_as_private)
             else:
                 ext_catalog = ExternalCatalog.by_id(data[u'catalog_id'])
                 ext_catalog.type = type
@@ -172,6 +175,7 @@ class PublishingController(base.BaseController):
                 ext_catalog.authorization_required = auth_req
                 ext_catalog.authorization = auth
                 ext_catalog.ext_org_id = org_id
+                ext_catalog.create_as_private = create_as_private
             
             ext_catalog.save()
             h.flash_success(_("Successfully created / edited catalog {url}").format(url=url))

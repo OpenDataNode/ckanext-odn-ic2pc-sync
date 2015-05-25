@@ -21,7 +21,8 @@ class CkanSync():
     def push(self, src_ckan, dst_ckan, package_ids=None,
              whitelist_package_extras=None,
              whitelist_resource_extras=None,
-             org_id_name=None):
+             org_id_name=None,
+             create_pkg_as_private=False):
         '''
         pushes datasets from_ckan to dst_ckan
         :param src_ckan: source ckan
@@ -35,7 +36,9 @@ class CkanSync():
         :param whitelist_resource_extras: whitelisted resource extras
         :type whitelist_resource_extras: list of strings
         :param org_id_name: id or name of organization to make owner of the dataset
-        :type org_id_name: string 
+        :type org_id_name: string
+        :param create_pkg_as_private: when creating new dataset, if it should be created as private
+        :type create_pkg_as_private: boolean 
         
         ::usage::
         src_ckan = CkanAPIWrapper('http://src_ckan.com', 'api_key')
@@ -86,11 +89,14 @@ class CkanSync():
 
                 if found:
                     phase = '[Updating dataset]'
-                    dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())[
-                        'id']
+                    dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())['id']
                     log.debug('[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
                     phase = '[Creating dataset]'
+                    
+                    if create_pkg_as_private:
+                        dataset_obj.private = True
+                    
                     dst_package_id = dst_ckan.package_create(dataset_obj)['id']
                     log.debug('[{0} / {1}] dataset_obj {2} created OK'.format(i, dataset_num, dataset_id))
                 
