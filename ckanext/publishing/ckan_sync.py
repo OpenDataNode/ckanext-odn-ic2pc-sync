@@ -70,7 +70,11 @@ class CkanSync():
 
             phase = '[Obtaining dataset]'
             try:
-                found, dst_package_id = dst_ckan.package_search_by_name(dataset_obj)
+                found = False
+                dst_package = dst_ckan.get_package(dataset_obj.name)
+                if dst_package:
+                    found = True
+                
                 # get information (name) about organization from source
                 phase = '[Obtaining organization]'
                 found_organization, __ = dst_ckan.find_organization(org_name)
@@ -89,6 +93,7 @@ class CkanSync():
 
                 if found:
                     phase = '[Updating dataset]'
+                    dataset_obj.private = dst_package['private'] # don't change private field
                     dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())['id']
                     log.debug('[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
