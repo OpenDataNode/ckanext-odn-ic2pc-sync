@@ -47,7 +47,13 @@
     {{ form.checkbox('authorization_required', label=_('requires authorization'), checked=req_auth) }}
     {{ form.input('authorization', label=_('Authorization (API key)'), placeholder=_('API key'), value=auth, type='password', error=error, is_required=false) }}
     {{ form.input('org_id', label=_('Organization'), placeholder=_('organization id or name'), value=org_id, error=error, is_required=false) }}
-    {{ form.checkbox('create_as_private', label=_('Create as private'), checked=create_as_private) }}
+    <div class="controls">
+      {% set create_as_private_tooltip = _("If checked, the newly created dataset will be marked as private. When updating already existing dataset, the state doesn't change.") %}
+      <label class="checkbox" for="create_as_private" title="{{ create_as_private_tooltip }}">
+	    <input id="create_as_private" type="checkbox" name="create_as_private" value="" {{ "checked " if create_as_private }} />
+	    {{ _('initially create as private') }}
+      </label>
+    </div>
     <div class="form-actions">
       {% link_for _('Back'), controller=controller, action='show', id=c.pkg_dict.name, class_='btn' %}
 	  <input type="submit" class="btn btn-primary" value="{{ submit_label or _('Save') }}" />
