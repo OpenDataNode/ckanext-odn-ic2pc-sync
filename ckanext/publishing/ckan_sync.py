@@ -186,7 +186,7 @@ def update_datastore_resource(src_ckan, dst_ckan, src_resource, dst_resource):
             'fields': datastore_res['fields'],
             'records': datastore_res['records'],
             'primary_key': datastore_primary_key(src_ckan, src_res_id),
-            'indexes': get_indexes(src_ckan, src_res_id)
+            'indexes': []
         }
         # create + first chunk
         resp = dst_ckan.datastore_create(data_dict)
@@ -217,14 +217,6 @@ def datastore_primary_key(ckan, id):
     data_string = urllib.quote(json.dumps(data_dict))
     return ckan.send_request(data_string, url)
 
-
-def get_indexes(ckan, id):
-    # this isn't standard api call
-    # this will function only on ckan with this plugin
-    url = ckan.url + '/api/action/datastore_indexes'
-    data_dict = { 'id':id }
-    data_string = urllib.quote(json.dumps(data_dict))
-    return ckan.send_request(data_string, url)
 
 
 def get_datastore_resource(ckan, resource_id, fields=None, offset=0, limit=DATASTORE_CHUNK_SIZE):

@@ -71,69 +71,6 @@ def datastore_primary_key(context, data_dict=None):
     
     return p_keys
 
-@toolkit.side_effect_free
-def datastore_indexes(context, data_dict=None):
-    """Checks indexes for resource, has to have rights to display dataset
-    
-    :param id: resource id
-    :return: list of strings - primary key column names
-    """
-    check_and_bust('id', data_dict)
-    id = data_dict['id']
-    toolkit.check_access('resource_show', context, data_dict)
-    
-    data_dict['connection_url'] = config['ckan.datastore.write_url']
-    engine = db._get_engine(data_dict)
-    context['connection'] = engine.connect()
-    
-    data_dict = {'resource_id':id}
-    try:
-        # select from drop_indexes Found at: ckanext.datastore.db
-        # difference: idx.indisunique = false
-        sql_get_index_string = u"""
-        SELECT
-            i.relname AS index_name
-        FROM
-            pg_class t,
-            pg_class i,
-            pg_index idx
-        WHERE
-            t.oid = idx.indrelid
-            AND i.oid = idx.indexrelid
-            AND t.relkind = 'r'
-            AND idx.indisunique = false
-            AND idx.indisprimary = false
-            AND t.relname = %s
-        """
-        indexes = context['connection'].execute(
-                    sql_get_index_string, data_dict['resource_id']).fetchall()
-    finally:
-        context['connection'].close()
-    
-    return get_index_names(id, indexes)
-
-def get_index_names(res_id, indexes):
-    """
-    input: [
-        (resourceid_INDEXNAME_idx),
-        (resourceid_INDEXNAME_idx1),
-        (resourceid__full_text_idx),
-    ]
-    for postgres < 9.0 can start idx_
-    also doesn't return the full text one
-    """
-    indexes_to_return = []
-    for index in indexes:
-        index = index[0]
-        to_replace = [res_id + '_', '_' + res_id, 'idx[0-9]*_', '_idx[0-9]*']
-        for rep in to_replace:
-            index = re.sub(rep, r"", index)
-            
-        if '_full_text' != index and index not in indexes_to_return:
-            indexes_to_return.append(index)
-    return indexes_to_return
-
-
 def start_sync(context, dataset):
     assert dataset
     
@@ -278,8 +215,7 @@ class PublishingPlugin(plugins.SingletonPlugin):
                 'package_update': dataset_update,
                 'resource_create': res_create,
                 'resource_update': res_update,
-                'datastore_primary_key':datastore_primary_key,
-                'datastore_indexes':datastore_indexes}
+                'datastore_primary_key':datastore_primary_key}
 
     
     def update_config(self, config):
