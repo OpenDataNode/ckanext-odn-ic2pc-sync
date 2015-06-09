@@ -231,7 +231,8 @@ def sync(dataset, public=True):
             default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
             
             errors = CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
-                        package_extras_whitelist, resource_extras_whitelist)
+                        package_extras_whitelist, resource_extras_whitelist,
+                        can_create_org=True)
             if errors:
                 msg = '<p>Error occured while synchronizing catalog:</p><ul>'
                 for err in errors:
