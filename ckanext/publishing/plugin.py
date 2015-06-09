@@ -83,7 +83,8 @@ def start_sync(context, dataset):
     log.debug("sync to default CKAN: {0}".format(dst_ckan))
     try:
         CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
-                        package_extras_whitelist, resource_extras_whitelist)
+                        package_extras_whitelist, resource_extras_whitelist,
+                        can_create_org=True)
     except URLError, e:
         log.error("Couldn't finish synchronization: {0}".format(e))
     except Exception, e:

@@ -22,6 +22,7 @@ class CkanSync():
              whitelist_package_extras=None,
              whitelist_resource_extras=None,
              org_id_name=None,
+             can_create_org=False,
              create_pkg_as_private=False):
         '''
         pushes datasets from_ckan to dst_ckan
@@ -36,7 +37,9 @@ class CkanSync():
         :param whitelist_resource_extras: whitelisted resource extras
         :type whitelist_resource_extras: list of strings
         :param org_id_name: id or name of organization to make owner of the dataset
-        :type org_id_name: string
+        :type org_id_name: string 
+        :param can_create_org: should create organization when it doesn't exist in destination ckan
+        :type can_create_org: boolean
         :param create_pkg_as_private: when creating new dataset, if it should be created as private
         :type create_pkg_as_private: boolean 
         
@@ -80,10 +83,13 @@ class CkanSync():
                 found_organization, __ = dst_ckan.find_organization(org_name)
 
                 if not found_organization:
-                    phase = '[Creating organization]'
-                    result = dst_ckan.organization_create(org_name)
-                    # set comsode organization id
-                    dataset_obj.owner_org = result['id']
+                    if can_create_org:
+                        phase = '[Creating organization]'
+                        result = dst_ckan.organization_create(org_name)
+                        # set comsode organization id
+                        dataset_obj.owner_org = result['id']
+                    else:
+                        raise Exception("Couldn't find organization {0}".format(org_name))
                 else:
                     phase = '[Obtaining organization]'
                     result = dst_ckan.organization_show(org_name)
