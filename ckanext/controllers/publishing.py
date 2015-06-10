@@ -20,6 +20,7 @@ from odn_ckancommons.ckan_helper import CkanAPIWrapper
 from ckanext.publishing.ckan_sync import CkanSync
 from datetime import datetime
 from ckanext.publishing.plugin import sync_ext_catalog
+from ckan.logic.validators import url_validator
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -94,20 +95,17 @@ class PublishingController(base.BaseController):
     
     
     def create(self, id):
-        self._load(id)
-        vars = {
-                'form_action': 'save',
-        }
-        return render('publishing/edit.html', extra_vars = vars)
+        return self._edit(id)
     
     
     def edit(self, id, cat_id):
+        return self._edit(id, {'catalog':ExternalCatalog.by_id(cat_id)})
+    
+        
+    def _edit(self, id, extra_vars={}):
         self._load(id)
-        vars = {
-                'form_action': 'save',
-                'catalog': ExternalCatalog.by_id(cat_id)
-        }
-        return render('publishing/edit.html', extra_vars = vars)
+        extra_vars['form_action'] = 'save'
+        return render('publishing/edit.html', extra_vars = extra_vars)
     
     
     def delete(self, id, cat_id):
@@ -136,6 +134,14 @@ class PublishingController(base.BaseController):
         base.redirect(h.url_for('dataset_publishing', id=id))
 
 
+    def _validate_url(self, url):
+        errors = {'url':[]}
+        url_validator('url', {'url':url}, errors, {'model':None, 'session':None})
+        
+        if errors['url']:
+            return errors['url'][0]
+
+
     def save(self, id):
         data = request.POST
         type = data.get(u'type', '')
@@ -146,21 +152,27 @@ class PublishingController(base.BaseController):
             auth_req = True
         auth = data[u'authorization']
         
-        missing = []
+        err_msg = [_("This field is required")]
+        vars = {}
         if not type:
-            missing.append(_("Type of catalog"))
+            vars['type_error'] = err_msg
         if not url:
-            missing.append(_("URL of external catalog"))
+            vars['url_error'] = err_msg
         if auth_req and not auth:
-            missing.append(_("Authorization"))
-        
-        if missing:
-            h.flash_error(_("This fields are required and need to be filled: {0}")\
-                          .format(', '.join(missing)))
-            if data[u'catalog_id']:
-                base.redirect(h.url_for('edit_catalog', id=id, cat_id=data[u'catalog_id']))
-            else:
-                base.redirect(h.url_for('create_catalog', id=id))
+            vars['auth_error'] = err_msg
+            
+        url_validation_err = self._validate_url(url)
+        if url_validation_err:
+            vars['url_error'] = [url_validation_err]
+            
+        if vars:
+            vars['cat_id'] = data[u'catalog_id']
+            vars['type'] = type
+            vars['url_val'] = url
+            vars['req_auth'] = auth_req
+            vars['auth'] = auth
+            vars['org_id'] = org_id
+            return self._edit(id, vars)
             
         try:
             if not data[u'catalog_id']:
