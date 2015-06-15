@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-odn-ic2pc-sync 0.5.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-06-12 13:50+0200\n"
+"POT-Creation-Date: 2015-06-15 13:58+0200\n"
 "PO-Revision-Date: 2015-06-12 13:50+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: sk <LL@li.org>\n"
@@ -20,62 +20,48 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
 
-#: ckanext/controllers/publishing.py:75
+#: ckanext/controllers/publishing.py:76
 msgid "User {user} not authorized to edit {id}"
 msgstr "Používateľ {user} nie je oprávnený upravovať {id}"
 
-#: ckanext/controllers/publishing.py:81
+#: ckanext/controllers/publishing.py:82
 msgid "Dataset not found"
 msgstr "Dataset sa nepodarilo nájsť"
 
-#: ckanext/controllers/publishing.py:83
+#: ckanext/controllers/publishing.py:84
 msgid "Unauthorized to read package {id}"
 msgstr "Nie ste oprávnený čítať dataset {id}"
 
-#: ckanext/controllers/publishing.py:130
+#: ckanext/controllers/publishing.py:128
 msgid "Catalog deleted successfully."
 msgstr "Katalóg bol úspešne odstránený."
 
-#: ckanext/controllers/publishing.py:134
+#: ckanext/controllers/publishing.py:132
 msgid "Error: couldn't delete catalog, cause: {err_msg}"
 msgstr "Chyba: nepodarilo sa odstrániť katalóg, dôvod: {err_msg}"
 
-#: ckanext/controllers/publishing.py:151
-#: ckanext/publishing/templates/publishing/edit.html:43
-msgid "Type of catalog"
-msgstr "Typ katalógu"
-
-#: ckanext/controllers/publishing.py:153
-#: ckanext/publishing/templates/publishing/edit.html:44
-msgid "URL of external catalog"
-msgstr "URL externéko katalógu"
-
 #: ckanext/controllers/publishing.py:155
-msgid "Authorization"
-msgstr "Autorizácia"
+msgid "This field is required"
+msgstr "Tento údaj je povinný"
 
-#: ckanext/controllers/publishing.py:158
-msgid "This fields are required and need to be filled: {0}"
-msgstr "Tieto údaje sú povinné a musia byť vyplnené: {0}"
-
-#: ckanext/controllers/publishing.py:177
+#: ckanext/controllers/publishing.py:189
 msgid "Successfully created / edited catalog {url}"
 msgstr "Katalóg {url} bol úspešne vytvorený / upravený"
 
-#: ckanext/controllers/publishing.py:182
+#: ckanext/controllers/publishing.py:194
 msgid "Error: couldn't add catalog, cause: {err_msg}"
 msgstr "Chyba: nepodarilo sa pridať katalóg, dôvod: {err_msg}"
 
-#: ckanext/controllers/publishing.py:192 ckanext/controllers/publishing.py:219
+#: ckanext/controllers/publishing.py:204 ckanext/controllers/publishing.py:231
 msgid "Synchronization with public catalog ended."
 msgstr "Synchronizácia s verejným katalógom bola ukončená."
 
-#: ckanext/controllers/publishing.py:194 ckanext/controllers/publishing.py:204
-#: ckanext/controllers/publishing.py:221
+#: ckanext/controllers/publishing.py:206 ckanext/controllers/publishing.py:216
+#: ckanext/controllers/publishing.py:233
 msgid "Synchronization not started, the dataset isn't public."
 msgstr "Synchronizácia nebola spustená, dataset nie je verejný."
 
-#: ckanext/controllers/publishing.py:202
+#: ckanext/controllers/publishing.py:214
 msgid "Synchronization with external catalogs ended."
 msgstr "Synchronizácia s externým katalógom bola ukončená."
 
@@ -100,6 +86,10 @@ msgstr "Synchronizovať teraz s verejným katalógom"
 #: ckanext/publishing/templates/package/publishing.html:28
 msgid "Synchronize with all external catalogs now"
 msgstr "Synchronizovať teraz so všetkými externými katalógmi"
+
+#: ckanext/publishing/templates/package/publishing.html:36
+msgid "List of associated external catalogs"
+msgstr "Zoznam asociovaných externých katalógov"
 
 #: ckanext/publishing/templates/package/publishing.html:53
 msgid "Yes"
@@ -158,6 +148,14 @@ msgstr "Upravenie externého katalógu"
 #: ckanext/publishing/templates/publishing/edit.html:38
 msgid "Add new external catalog"
 msgstr "Pridanie nového katalógu"
+
+#: ckanext/publishing/templates/publishing/edit.html:43
+msgid "Type of catalog"
+msgstr "Typ katalógu"
+
+#: ckanext/publishing/templates/publishing/edit.html:44
+msgid "URL of external catalog"
+msgstr "URL externéko katalógu"
 
 #: ckanext/publishing/templates/publishing/edit.html:44
 msgid "http://..."
