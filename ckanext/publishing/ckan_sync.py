@@ -21,7 +21,8 @@ class CkanSync():
     def push(self, src_ckan, dst_ckan, package_ids=None,
              whitelist_package_extras=None,
              whitelist_resource_extras=None,
-             org_id_name=None):
+             org_id_name=None,
+             can_create_org=False):
         '''
         pushes datasets from_ckan to dst_ckan
         :param src_ckan: source ckan
@@ -36,6 +37,8 @@ class CkanSync():
         :type whitelist_resource_extras: list of strings
         :param org_id_name: id or name of organization to make owner of the dataset
         :type org_id_name: string 
+        :param can_create_org: should create organization when it doesn't exist in destination ckan
+        :type can_create_org: boolean
         
         ::usage::
         src_ckan = CkanAPIWrapper('http://src_ckan.com', 'api_key')
@@ -73,10 +76,13 @@ class CkanSync():
                 found_organization, __ = dst_ckan.find_organization(org_name)
 
                 if not found_organization:
-                    phase = '[Creating organization]'
-                    result = dst_ckan.organization_create(org_name)
-                    # set comsode organization id
-                    dataset_obj.owner_org = result['id']
+                    if can_create_org:
+                        phase = '[Creating organization]'
+                        result = dst_ckan.organization_create(org_name)
+                        # set comsode organization id
+                        dataset_obj.owner_org = result['id']
+                    else:
+                        raise Exception("Couldn't find organization {0}".format(org_name))
                 else:
                     phase = '[Obtaining organization]'
                     result = dst_ckan.organization_show(org_name)
@@ -175,7 +181,7 @@ def update_datastore_resource(src_ckan, dst_ckan, src_resource, dst_resource):
             'fields': datastore_res['fields'],
             'records': datastore_res['records'],
             'primary_key': datastore_primary_key(src_ckan, src_res_id),
-            'indexes': get_indexes(src_ckan, src_res_id)
+            'indexes': []
         }
         # create + first chunk
         resp = dst_ckan.datastore_create(data_dict)
@@ -206,14 +212,6 @@ def datastore_primary_key(ckan, id):
     data_string = urllib.quote(json.dumps(data_dict))
     return ckan.send_request(data_string, url)
 
-
-def get_indexes(ckan, id):
-    # this isn't standard api call
-    # this will function only on ckan with this plugin
-    url = ckan.url + '/api/action/datastore_indexes'
-    data_dict = { 'id':id }
-    data_string = urllib.quote(json.dumps(data_dict))
-    return ckan.send_request(data_string, url)
 
 
 def get_datastore_resource(ckan, resource_id, fields=None, offset=0, limit=DATASTORE_CHUNK_SIZE):
