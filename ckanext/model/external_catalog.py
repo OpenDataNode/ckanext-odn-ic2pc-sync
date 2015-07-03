@@ -81,6 +81,10 @@ class ExternalCatalog(domain_object.DomainObject):
         assert id
         return Session.query(cls).filter_by(id=id).first()
     
+    @classmethod
+    def has_catalog(cls, package_id, url):
+        return Session.query(cls).filter_by(package_id=package_id, url=url).count() > 0;
+    
     def status_string(self):
         return STATUS[self.status]
             

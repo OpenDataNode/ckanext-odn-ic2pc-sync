@@ -20,6 +20,7 @@ from odn_ckancommons.ckan_helper import CkanAPIWrapper
 from ckanext.publishing.ckan_sync import CkanSync
 from datetime import datetime
 from ckanext.publishing.plugin import sync_ext_catalog
+from ckan.logic.validators import url_validator
 
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
@@ -94,20 +95,18 @@ class PublishingController(base.BaseController):
     
     
     def create(self, id):
-        self._load(id)
-        vars = {
-                'form_action': 'save',
-        }
-        return render('publishing/edit.html', extra_vars = vars)
+        return self._edit(id)
     
     
     def edit(self, id, cat_id):
-        self._load(id)
-        vars = {
-                'form_action': 'save',
-                'catalog': ExternalCatalog.by_id(cat_id)
-        }
-        return render('publishing/edit.html', extra_vars = vars)
+        return self._edit(id, {'catalog':ExternalCatalog.by_id(cat_id)})
+    
+        
+    def _edit(self, id, extra_vars={}, with_load=True):
+        if with_load:
+            self._load(id)
+        extra_vars['form_action'] = 'save'
+        return render('publishing/edit.html', extra_vars = extra_vars)
     
     
     def delete(self, id, cat_id):
@@ -136,8 +135,72 @@ class PublishingController(base.BaseController):
         base.redirect(h.url_for('dataset_publishing', id=id))
 
 
+    def verify(self, id, data, vars):
+        cat_id, type, url, auth_req, auth, org_id = data
+        has_errors = len(vars) > 0
+            
+        vars['cat_id'] = cat_id
+        vars['type'] = type
+        vars['url_val'] = url
+        vars['req_auth'] = auth_req
+        vars['auth'] = auth
+        vars['org_id'] = org_id
+        
+        if has_errors :
+            return self._edit(id, vars)
+        
+        self._load(id)
+        if type == 'CKAN':
+            if auth_req:
+                ext_cat = CkanAPIWrapper(url, auth)
+            else:
+                ext_cat = CkanAPIWrapper(url, None)
+            
+            # check if catalog is available
+            read_ok, redirected_to = ext_cat.site_read()
+            if not read_ok:
+                vars['url_error'] = [_('Could not connect to this catalog.')]
+                return self._edit(id, vars, False)
+            
+            if redirected_to:
+                h.flash_notice(_('The verification was redirected to \'{0}\'. '
+                    'The synchronization may not function properly. Try to '
+                    'replace URL for the redirected url.').format(redirected_to))
+            
+            # check organization
+            check_org = org_id or c.pkg_dict.get('owner_org', None)
+            org = ext_cat.organization_show2(check_org)
+            if not org:
+                vars['org_error'] = [_('Organization with this id or name was not found.')]
+                return self._edit(id, vars, False)
+            
+            # chech authorization
+            if not ext_cat.has_edit_rights(check_org):
+                if auth_req:
+                    vars['auth_error'] = [_('User with this API key is not authorized to edit datasets for organization {0}').format(org['name'])]
+                else:
+                    vars['auth_req_error'] = [_('This catalog requires authorization for organization {0}.').format(org['name'])]
+                return self._edit(id, vars, False)
+
+            vars['verified'] = True
+            h.flash_success(_("External catalog verification was successful."))
+            return self._edit(id, vars, False)
+        else:
+            h.flash_notice(_("Verify is not supported for type {0}").format(type))
+            return self._edit(id, vars, False)
+    
+    
+    def _validate_url(self, url):
+        errors = {'url':[]}
+        url_validator('url', {'url':url}, errors, {'model':None, 'session':None})
+        
+        if errors['url']:
+            return errors['url'][0]
+
+
     def save(self, id):
         data = request.POST
+        cat_id = data[u'catalog_id']
         type = data.get(u'type', '')
         url = get_url_without_slash_at_the_end(data.get(u'url', ''))
         org_id = data.get(u'org_id', '')
@@ -146,27 +209,39 @@ class PublishingController(base.BaseController):
             auth_req = True
         auth = data[u'authorization']
         
-        missing = []
+        err_msg = [_("This field is required")]
+        extra_vars = {}
         if not type:
-            missing.append(_("Type of catalog"))
+            extra_vars['type_error'] = err_msg
         if not url:
-            missing.append(_("URL of external catalog"))
+            extra_vars['url_error'] = err_msg
         if auth_req and not auth:
-            missing.append(_("Authorization"))
+            extra_vars['auth_error'] = err_msg
+            
+        url_validation_err = self._validate_url(url)
+        if url_validation_err:
+            extra_vars['url_error'] = [url_validation_err]
+        elif not cat_id and ExternalCatalog.has_catalog(id, url):
+            extra_vars['url_error'] = [_('This dataset already has external catalog with this URL')]
         
-        if missing:
-            h.flash_error(_("This fields are required and need to be filled: {0}")\
-                          .format(', '.join(missing)))
-            if data[u'catalog_id']:
-                base.redirect(h.url_for('edit_catalog', id=id, cat_id=data[u'catalog_id']))
-            else:
-                base.redirect(h.url_for('create_catalog', id=id))
+        if data.get('action', None) == 'verify':
+            return self.verify(id, (cat_id, type, url, auth_req, auth, org_id), extra_vars)
+        
+        
+        if extra_vars:
+            extra_vars['cat_id'] = cat_id
+            extra_vars['type'] = type
+            extra_vars['url_val'] = url
+            extra_vars['req_auth'] = auth_req
+            extra_vars['auth'] = auth
+            extra_vars['org_id'] = org_id
+            return self._edit(id, extra_vars)
             
         try:
-            if not data[u'catalog_id']:
+            if not cat_id:
                 ext_catalog = ExternalCatalog(id, type, url, auth_req, auth, ext_org_id=org_id)
             else:
-                ext_catalog = ExternalCatalog.by_id(data[u'catalog_id'])
+                ext_catalog = ExternalCatalog.by_id(cat_id)
                 ext_catalog.type = type
                 ext_catalog.url = url
                 ext_catalog.authorization_required = auth_req

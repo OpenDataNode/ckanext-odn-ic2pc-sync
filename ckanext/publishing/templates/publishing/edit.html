@@ -21,33 +21,36 @@
   {% set auth = catalog.authorization %}
   {% set org_id = catalog.ext_org_id %}
 {% else %}
-  {% set cat_id = '' %}
-  {% set type = 'CKAN' %}
-  {% set url = '' %}
-  {% set req_auth = true %}
-  {% set auth = '' %}
-  {% set org_id = '' %}
+  {% set cat_id = cat_id or '' %}
+  {% set type = type or 'CKAN' %}
+  {% set url = url_val or '' %}
+  {% set req_auth = req_auth %}
+  {% set auth = auth or '' %}
+  {% set org_id = org_id or '' %}
 {% endif %}
 
 {% block primary_content_inner %}
   {% resource 'publ_theme/publishing.js' %}
   <div class="publ_header">
-    {% if catalog %}
+    {% if cat_id %}
       {{ _('Modify external catalog') }}
     {% else %}
       {{ _('Add new external catalog') }}
     {% endif %}
   </div>
-  <form method='post' class="module-content form-horizontal" action="{% url_for controller=controller, action=form_action, id=c.pkg_dict.id %}">
+  <form method='post' class="module-content form-horizontal" action="{% url_for controller=controller, action=form_action, id=c.pkg.id %}">
   	<input type="hidden" name="catalog_id" value="{{ cat_id }}"/>
-    {{ form.select('type', label=_('Type of catalog'), options=[{'value':'CKAN', 'text':'CKAN'}], selected=type, error=error, is_required=true) }}
-    {{ form.input('url', label=_('URL of external catalog'), placeholder=_('http://...'), value=url, error=error, is_required=true) }}
-    {{ form.checkbox('authorization_required', label=_('requires authorization'), checked=req_auth) }}
-    {{ form.input('authorization', label=_('Authorization (API key)'), placeholder=_('API key'), value=auth, type='password', error=error, is_required=false) }}
-    {{ form.input('org_id', label=_('Organization'), placeholder=_('organization id or name'), value=org_id, error=error, is_required=false) }}
+  	<input type="hidden" name="action" value="{{ 'save' if verified else 'verify' }}"/>
+    {{ form.select('type', label=_('Type of catalog'), options=[{'value':'CKAN', 'text':'CKAN'}], selected=type, error=type_error, is_required=true) }}
+    {{ form.input('url', label=_('URL of external catalog'), placeholder=_('http://...'), value=url, error=url_error, is_required=true) }}
+    {{ form.checkbox('authorization_required', label=_('Requires authorization'), checked=req_auth, error=auth_req_error) }}
+    {{ form.input('authorization', label=_('Authorization (API key)'), placeholder=_('API key'), value=auth, type='password', error=auth_error, is_required=false) }}
+    {{ form.input('org_id', label=_('Organization'), placeholder=_('organization id or name'), value=org_id, error=org_error, is_required=false) }}
     <div class="form-actions">
       {% link_for _('Back'), controller=controller, action='show', id=c.pkg_dict.name, class_='btn' %}
-	  <input type="submit" class="btn btn-primary" value="{{ submit_label or _('Save') }}" />
+      {# {% link_for _('Verify'), controller=controller, action='verify', id=c.pkg_dict.name, class_='btn' %} #}
+      <input type="{{ 'submit' if not verified else 'hidden' }}" name="verify" class="btn btn-primary" value="{{ _('Verify') }}" />
+      <input type="{{ 'submit' if verified else 'hidden' }}" name="save" class="btn btn-primary" value="{{ submit_label or _('Save') }}" />
     </div>
   </form>
 {% endblock %}
