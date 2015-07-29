@@ -45,20 +45,20 @@ class CkanSync():
         dst_ckan = CkanAPIWrapper('http://dst_ckan.com', 'api_key')
         CkanSync().push(src_ckan, dst_ckan)
         '''
-        log.debug('pushing datasets from {0} to {1}'.format(src_ckan.url, dst_ckan.url, ))
+        log.debug(u'pushing datasets from {0} to {1}'.format(src_ckan.url, dst_ckan.url, ))
 
         if not package_ids:
             package_ids = src_ckan.get_all_package_ids()
 
         dataset_num = len(package_ids)
-        log.debug('number of datasets: {0}'.format(dataset_num, ))
+        log.debug(u'number of datasets: {0}'.format(dataset_num, ))
 
         errors = []
         for i, dataset_id in enumerate(package_ids, start=1):
-            log.debug('[{0} / {1}] processing dataset_obj with id/name (source ckan) {2}'.format(i, dataset_num, dataset_id))
+            log.debug(u'[{0} / {1}] processing dataset_obj with id/name (source ckan) {2}'.format(i, dataset_num, dataset_id))
             package = src_ckan.get_package(dataset_id)
             if not package:
-                log.error("No dataset found with id/name = {0}".format(dataset_id))
+                log.error(u"No dataset found with id/name = {0}".format(dataset_id))
                 continue
             dataset_obj = load_from_dict(package)
             
@@ -68,63 +68,63 @@ class CkanSync():
                 organization = dataset_obj.organization
                 org_name = organization.get('name')
 
-            phase = '[Obtaining dataset]'
+            phase = u'[Obtaining dataset]'
             try:
                 found, dst_package_id = dst_ckan.package_search_by_name(dataset_obj)
                 # get information (name) about organization from source
-                phase = '[Obtaining organization]'
+                phase = u'[Obtaining organization]'
                 found_organization, __ = dst_ckan.find_organization(org_name)
 
                 if not found_organization:
                     if can_create_org:
-                        phase = '[Creating organization]'
+                        phase = u'[Creating organization]'
                         result = dst_ckan.organization_create(org_name)
                         # set comsode organization id
                         dataset_obj.owner_org = result['id']
                     else:
-                        raise Exception("Couldn't find organization {0}".format(org_name))
+                        raise Exception(u"Couldn't find organization {0}".format(org_name))
                 else:
-                    phase = '[Obtaining organization]'
+                    phase = u'[Obtaining organization]'
                     result = dst_ckan.organization_show(org_name)
                     dataset_obj.owner_org = result['id']
 
                 filter_package_extras(dataset_obj, whitelist_package_extras)
 
                 if found:
-                    phase = '[Updating dataset]'
+                    phase = u'[Updating dataset]'
                     dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())[
                         'id']
-                    log.debug('[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
+                    log.debug(u'[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
-                    phase = '[Creating dataset]'
+                    phase = u'[Creating dataset]'
                     dst_package_id = dst_ckan.package_create(dataset_obj)['id']
-                    log.debug('[{0} / {1}] dataset_obj {2} created OK'.format(i, dataset_num, dataset_id))
+                    log.debug(u'[{0} / {1}] dataset_obj {2} created OK'.format(i, dataset_num, dataset_id))
                 
                 # now resource_names
                 resource_names = []
                 for resource in dataset_obj.resources:
-                    phase = '[Resource name check]'
+                    phase = u'[Resource name check]'
                     if not resource['name']:
-                        e = Exception('Failed to synchronize resource: name is missing!')
+                        e = Exception(u'Failed to synchronize resource: name is missing!')
                         errors.append(process_error(phase, e))
                         continue
                     
                     resource_names.append(resource['name'])
                     
                     try:
-                        phase = '[Creating / updating resource with name \'{0}\']'.format(resource['name'])
-                        log.debug('creating / updating resource: name={0}'.format(resource['name'].encode('utf8')))
+                        phase = u'[Creating / updating resource with name \'{0}\']'.format(resource['name'])
+                        log.debug(u'creating / updating resource: name={0}'.format(resource['name']))
                         response = resource_create_update_with_upload(dst_ckan, resource, dst_package_id, whitelist_resource_extras)
                         
                         if is_datastore_resource(response):
-                            phase = '[Create / update of datastore resource with name \'{0}\']'.format(resource['name'])
-                            log.debug('creating / updating datastore resource')
+                            phase = u'[Create / update of datastore resource with name \'{0}\']'.format(resource['name'])
+                            log.debug(u'creating / updating datastore resource')
                             update_datastore_resource(src_ckan, dst_ckan, resource, response)
                     except Exception, e:
                         errors.append(process_error(phase, e))
                 
-                phase = '[Deleting resources]'
-                log.debug('deleting resources with names not in {0}'.format(resource_names))
+                phase = u'[Deleting resources]'
+                log.debug(u'deleting resources not in source CKAN')
                 # delete resource not in src_ckan
                 del_errs = dst_ckan.delete_resources_not_with_name_in(resource_names, dst_package_id)
                 log_errors(del_errs)
@@ -139,10 +139,10 @@ def process_error(phase, e):
     ''' Logs the error and return formatted error msg
     '''
     if isinstance(e, urllib2.HTTPError):
-        log.error('error response: {0}'.format(e.fp.read()))
+        log.error(u'error response: {0}'.format(e.fp.read()))
     else:
         log.error(e)
-    return '{0} {1}'.format(phase, str(e))
+    return u'{0} {1}'.format(phase, str(e))
 
 
 def log_errors(errors):

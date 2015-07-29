@@ -15,7 +15,7 @@
 
 
 {% block primary_content_inner %}
-  <div class="publ_header">Deletion of external catalog</div>
+  <div class="publ_header">{{ _('Deletion of external catalog') }}</div>
   
   <form method='post' class="module-content form-horizontal" action="{% url_for controller=controller, action='delete_cat', id=c.pkg_dict.id, cat_id=catalog.id %}">
     <table style="width:100%">
@@ -28,7 +28,7 @@
         <td>{{ catalog.url }}</td>
       </tr>
     </table>
-    <div class="publ_delete_confirm">Delete this catalog?</div>
+    <div class="publ_delete_confirm">{{ _('Delete this catalog?') }}</div>
     <div class="form-actions">
     {% link_for _('Back'), controller=controller, action='show', id=c.pkg_dict.name, class_='btn' %}
     <input type="submit" class="btn btn-primary" value="{{ _('Delete') }}" />

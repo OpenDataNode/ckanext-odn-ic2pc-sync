@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-odn-ic2pc-sync 0.5.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-06-23 10:50+0200\n"
+"POT-Creation-Date: 2015-07-29 10:01+0200\n"
 "PO-Revision-Date: 2015-06-12 13:50+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: sk <LL@li.org>\n"
@@ -182,6 +182,10 @@ msgstr "Nie je špecifikovný žiadny externý katalóg"
 msgid "Deleting catalog"
 msgstr "Zmazanie katalógu"
 
+#: ckanext/publishing/templates/publishing/delete.html:18
+msgid "Deletion of external catalog"
+msgstr "Zmazanie externéko katalógu"
+
 #: ckanext/publishing/templates/publishing/delete.html:23
 msgid "Type of catalog:"
 msgstr "Typ katalógu:"
@@ -189,6 +193,10 @@ msgstr "Typ katalógu:"
 #: ckanext/publishing/templates/publishing/delete.html:27
 msgid "URL of external catalog:"
 msgstr "URL externého katalógu:"
+
+#: ckanext/publishing/templates/publishing/delete.html:31
+msgid "Delete this catalog?"
+msgstr "Zmazať tento katalóg?"
 
 #: ckanext/publishing/templates/publishing/delete.html:33
 #: ckanext/publishing/templates/publishing/edit.html:50

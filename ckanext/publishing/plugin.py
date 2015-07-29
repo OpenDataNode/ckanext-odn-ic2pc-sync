@@ -16,6 +16,10 @@ from odn_ckancommons.ckan_helper import CkanAPIWrapper
 from ckanext.publishing.ckan_sync import CkanSync
 from urllib2 import URLError
 from datetime import datetime
+
+from multiprocessing.synchronize import Lock
+lock = Lock()
+
 log = logging.getLogger('ckanext')
 
 GET = dict(method=['GET'])
@@ -74,25 +78,36 @@ def datastore_primary_key(context, data_dict=None):
 def start_sync(context, dataset):
     assert dataset
     
-    log.debug('starting sync of dataset = {0}'.format(dataset['name']))
-    catalogs = get_catalogs_to_sync(dataset)
-
-    from_ckan = CkanAPIWrapper(src_ckan, None)
-    default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
-    
-    log.debug("sync to default CKAN: {0}".format(dst_ckan))
+    log.debug('acquiring lock')
+    lock.acquire()
+    log.debug('lock acquired')
     try:
-        CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
-                        package_extras_whitelist, resource_extras_whitelist,
-                        can_create_org=True)
-    except URLError, e:
-        log.error("Couldn't finish synchronization: {0}".format(e))
+        log.debug('>>> starting sync of dataset = {0}'.format(dataset['name']))
+        catalogs = get_catalogs_to_sync(dataset)
+        
+        from_ckan = CkanAPIWrapper(src_ckan, None)
+        default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
+            
+        log.debug("sync to default CKAN: {0}".format(dst_ckan))
+        try:
+            CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
+                            package_extras_whitelist, resource_extras_whitelist,
+                            can_create_org=True)
+        except URLError, e:
+            log.error("Couldn't finish synchronization: {0}".format(e))
+        except Exception, e:
+            log.exception(e)
+            
+        log.debug("sync to dataset specified external catalogs ({0})".format(len(catalogs)))
+        for catalog in catalogs:
+            sync_ext_catalog(from_ckan, catalog, dataset)
+            
+        log.debug('<<< end of synchronization')
     except Exception, e:
-        log.exception(e)
-    
-    log.debug("sync to dataset specified external catalogs ({0})".format(len(catalogs)))
-    for catalog in catalogs:
-        sync_ext_catalog(from_ckan, catalog, dataset)
+        log.error(e)
+    finally:
+        log.debug('releasing lock')
+        lock.release()
 
 
 def sync_ext_catalog(from_ckan, external_catalog, dataset):
