@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.6.1'
+version = '0.6.2-SNAPSHOT'
 
 setup(
     name='ckanext-odn-ic2pc-sync',
