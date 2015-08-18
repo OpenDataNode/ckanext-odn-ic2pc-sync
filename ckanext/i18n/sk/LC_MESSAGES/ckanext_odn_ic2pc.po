@@ -221,7 +221,7 @@ msgstr "Typ katalógu"
 
 #: ckanext/publishing/templates/publishing/edit.html:45
 msgid "URL of external catalog"
-msgstr "URL externéko katalógu"
+msgstr "URL externého katalógu"
 
 #: ckanext/publishing/templates/publishing/edit.html:45
 msgid "http://..."
