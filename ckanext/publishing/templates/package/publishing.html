@@ -33,16 +33,16 @@
 {% endblock %}
 
 {% block primary_content_inner %}
-  <div class="publ_header">List of associated external catalogs</div>
+  <div class="publ_header">{{ _('List of associated external catalogs') }}</div>
   {% if catalogs %}
   	<table class="publ_catalogs">
   	  <tr>
-  	    <th>URL</th>
-  	    <th>Type</th>
-  	    <th>Authorization</th>
-  	    <th>Last sync on (UTC)</th>
-  	    <th>Status</th>
-  	    <th>Action</th>
+  	    <th>{{ _('URL') }}</th>
+  	    <th>{{ _('Type') }}</th>
+  	    <th>{{ _('Authorization') }}</th>
+  	    <th>{{ _('Last sync on (UTC)') }}</th>
+  	    <th>{{ _('Status') }}</th>
+  	    <th>{{ _('Action') }}</th>
   	  </tr>
   	  {% for cat in catalogs %}
       <tr>
@@ -55,7 +55,7 @@
           {{ _("No") }}
         {% endif %}  
         </td>
-        <td>{{ h.format_datetime(cat.last_updated) or _('N/A') }}</td>
+        <td>{{ h.format_datetime(cat.last_updated) or 'N/A' }}</td>
         <td>{{ cat.status_string() }}</td>
         <td>
           <div class="dropdown btn-group">
