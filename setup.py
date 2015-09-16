@@ -35,7 +35,7 @@ setup(
                   },
     include_package_data=True,
     zip_safe=False,
-    install_requires=['odn-ckancommons>=1.1.2'],
+    install_requires=['odn-ckancommons>=1.2.0'],
     message_extractors={
         'ckanext': [
             ('**.py', 'python', None),
