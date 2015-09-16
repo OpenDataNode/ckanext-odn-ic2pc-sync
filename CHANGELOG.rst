@@ -2,6 +2,14 @@
 Changelog
 ---------
 
+v1.2.0 2015-08-05
+
+Notes:
+ * Version jumped to 1.2.0 in order to align with tags / ODN releases
+
+New Features:
+ * Added option to create dataset as private in external catalog, when synchronizing for the first time
+
 v0.6.2 2015-08-05
 
 Bug fixes:

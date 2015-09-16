@@ -133,7 +133,8 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
             to_ckan = CkanAPIWrapper(external_catalog.url, authorization)
             errors = CkanSync().push(from_ckan, to_ckan, [dataset['name']], \
                                     package_extras_whitelist, resource_extras_whitelist, \
-                                    org_id_name=external_catalog.ext_org_id)
+                                    org_id_name=external_catalog.ext_org_id, \
+                                    create_pkg_as_private=external_catalog.create_as_private)
             if errors:
                 status = STATUS.index("FAILED")
         else:

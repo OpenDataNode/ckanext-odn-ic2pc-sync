@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-odn-ic2pc-sync 0.5.5\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-07-29 10:01+0200\n"
+"POT-Creation-Date: 2015-09-09 18:20+0200\n"
 "PO-Revision-Date: 2015-06-12 13:50+0200\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: sk <LL@li.org>\n"
@@ -40,11 +40,11 @@ msgstr "Katalóg bol úspešne odstránený."
 msgid "Error: couldn't delete catalog, cause: {err_msg}"
 msgstr "Chyba: nepodarilo sa odstrániť katalóg, dôvod: {err_msg}"
 
-#: ckanext/controllers/publishing.py:162
+#: ckanext/controllers/publishing.py:165
 msgid "Could not connect to this catalog."
 msgstr "Nepodarilo sa pripojit ku katalogu."
 
-#: ckanext/controllers/publishing.py:166
+#: ckanext/controllers/publishing.py:169
 msgid ""
 "The verification was redirected to '{0}'. The synchronization may not "
 "function properly. Try to replace URL for the redirected url."
@@ -52,11 +52,11 @@ msgstr ""
 "Overovanie bolo presmerované na '{0}'. Synchronizácia nemusí fungovať "
 "správne. Skúste nahradiť URL za tú, na ktorú bola presmerovaná."
 
-#: ckanext/controllers/publishing.py:174
+#: ckanext/controllers/publishing.py:177
 msgid "Organization with this id or name was not found."
 msgstr "Nepodarilo sa nájsť organizáciu s týmto id alebo menom."
 
-#: ckanext/controllers/publishing.py:180
+#: ckanext/controllers/publishing.py:183
 msgid ""
 "User with this API key is not authorized to edit datasets for "
 "organization {0}"
@@ -64,44 +64,44 @@ msgstr ""
 "Používateľ s týmto API kľúčom nie je autorizovaný meniť dataset pre "
 "organizáciu {0}"
 
-#: ckanext/controllers/publishing.py:182
+#: ckanext/controllers/publishing.py:185
 msgid "This catalog requires authorization for organization {0}."
 msgstr "Tento katalóg vyžaduje autorizáciu pre organizáciu {0}."
 
-#: ckanext/controllers/publishing.py:186
+#: ckanext/controllers/publishing.py:189
 msgid "External catalog verification was successful."
 msgstr "Kontrola externého katalógu bola úspešná."
 
-#: ckanext/controllers/publishing.py:189
+#: ckanext/controllers/publishing.py:192
 msgid "Verify is not supported for type {0}"
 msgstr "Kontrola katalógu nie je podporovaná pre typ {0}"
 
-#: ckanext/controllers/publishing.py:212
+#: ckanext/controllers/publishing.py:218
 msgid "This field is required"
 msgstr "Tento údaj je povinný"
 
-#: ckanext/controllers/publishing.py:225
+#: ckanext/controllers/publishing.py:231
 msgid "This dataset already has external catalog with this URL"
 msgstr "Tento dataset už má pridaný externý katalóg s touto URL"
 
-#: ckanext/controllers/publishing.py:252
+#: ckanext/controllers/publishing.py:259
 msgid "Successfully created / edited catalog {url}"
 msgstr "Katalóg {url} bol úspešne vytvorený / upravený"
 
-#: ckanext/controllers/publishing.py:257
+#: ckanext/controllers/publishing.py:264
 msgid "Error: couldn't add catalog, cause: {err_msg}"
 msgstr "Chyba: nepodarilo sa pridať katalóg, dôvod: {err_msg}"
 
-#: ckanext/controllers/publishing.py:267 ckanext/controllers/publishing.py:294
+#: ckanext/controllers/publishing.py:274 ckanext/controllers/publishing.py:301
 msgid "Synchronization with public catalog ended."
 msgstr "Synchronizácia s verejným katalógom bola ukončená."
 
-#: ckanext/controllers/publishing.py:269 ckanext/controllers/publishing.py:279
-#: ckanext/controllers/publishing.py:296
+#: ckanext/controllers/publishing.py:276 ckanext/controllers/publishing.py:286
+#: ckanext/controllers/publishing.py:303
 msgid "Synchronization not started, the dataset isn't public."
 msgstr "Synchronizácia nebola spustená, dataset nie je verejný."
 
-#: ckanext/controllers/publishing.py:277
+#: ckanext/controllers/publishing.py:284
 msgid "Synchronization with external catalogs ended."
 msgstr "Synchronizácia s externým katalógom bola ukončená."
 
@@ -199,7 +199,7 @@ msgid "Delete this catalog?"
 msgstr "Zmazať tento katalóg?"
 
 #: ckanext/publishing/templates/publishing/delete.html:33
-#: ckanext/publishing/templates/publishing/edit.html:50
+#: ckanext/publishing/templates/publishing/edit.html:59
 msgid "Back"
 msgstr "Naspäť"
 
@@ -207,51 +207,63 @@ msgstr "Naspäť"
 msgid "Edit catalog"
 msgstr "Upraviť katalóg"
 
-#: ckanext/publishing/templates/publishing/edit.html:36
+#: ckanext/publishing/templates/publishing/edit.html:38
 msgid "Modify external catalog"
 msgstr "Upravenie externého katalógu"
 
-#: ckanext/publishing/templates/publishing/edit.html:38
+#: ckanext/publishing/templates/publishing/edit.html:40
 msgid "Add new external catalog"
 msgstr "Pridanie nového katalógu"
 
-#: ckanext/publishing/templates/publishing/edit.html:44
+#: ckanext/publishing/templates/publishing/edit.html:46
 msgid "Type of catalog"
 msgstr "Typ katalógu"
 
-#: ckanext/publishing/templates/publishing/edit.html:45
+#: ckanext/publishing/templates/publishing/edit.html:47
 msgid "URL of external catalog"
 msgstr "URL externého katalógu"
 
-#: ckanext/publishing/templates/publishing/edit.html:45
+#: ckanext/publishing/templates/publishing/edit.html:47
 msgid "http://..."
 msgstr "http://demo.ckan.org"
 
-#: ckanext/publishing/templates/publishing/edit.html:46
+#: ckanext/publishing/templates/publishing/edit.html:48
 msgid "Requires authorization"
 msgstr "Vyžaduje autorizáciu"
 
-#: ckanext/publishing/templates/publishing/edit.html:47
+#: ckanext/publishing/templates/publishing/edit.html:49
 msgid "Authorization (API key)"
 msgstr "Autorizácia (API kľúč)"
 
-#: ckanext/publishing/templates/publishing/edit.html:47
+#: ckanext/publishing/templates/publishing/edit.html:49
 msgid "API key"
 msgstr "API kľúč"
 
-#: ckanext/publishing/templates/publishing/edit.html:48
+#: ckanext/publishing/templates/publishing/edit.html:50
 msgid "Organization"
 msgstr "Organizácia"
 
-#: ckanext/publishing/templates/publishing/edit.html:48
+#: ckanext/publishing/templates/publishing/edit.html:50
 msgid "organization id or name"
 msgstr "id alebo meno organizácie"
 
 #: ckanext/publishing/templates/publishing/edit.html:52
+msgid ""
+"If checked, the newly created dataset will be marked as private. When "
+"updating already existing dataset, the state doesn't change."
+msgstr ""
+"Ak je zaškrtnuté, novo vytvrený dataset bude označený ako privátny. Ak "
+"sa updatuje už existujúci dataset, stav ostáva nezmenený."
+
+#: ckanext/publishing/templates/publishing/edit.html:55
+msgid "Initially create as private"
+msgstr "Spočiatku vytvoriť ako súkromný"
+
+#: ckanext/publishing/templates/publishing/edit.html:61
 msgid "Verify"
 msgstr "Overiť"
 
-#: ckanext/publishing/templates/publishing/edit.html:53
+#: ckanext/publishing/templates/publishing/edit.html:62
 msgid "Save"
 msgstr "Uložiť"
 
