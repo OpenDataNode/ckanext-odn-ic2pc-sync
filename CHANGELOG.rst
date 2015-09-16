@@ -2,7 +2,7 @@
 Changelog
 ---------
 
-v1.2.0 2015-08-05
+v1.2.0 2015-09-16
 
 Notes:
  * Version jumped to 1.2.0 in order to align with tags / ODN releases
