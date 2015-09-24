@@ -4,7 +4,6 @@ import ckan.logic as logic
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 import pylons.config as config
-import re
 import routes.mapper
 import logging
 import threading
@@ -18,6 +17,7 @@ from urllib2 import URLError
 from datetime import datetime
 
 from multiprocessing.synchronize import Lock
+from Queue import Queue
 lock = Lock()
 
 log = logging.getLogger('ckanext')
@@ -28,6 +28,36 @@ NotFound = toolkit.ObjectNotFound
 
 get_action = logic.get_action
 
+def worker():
+    while True:
+        item = queue.get()
+        start_sync(item)
+        queue.task_done()
+  
+class SetQueue(Queue):
+  
+    def _init(self, maxsize):
+        Queue._init(self, maxsize)
+        self.all_items = set()
+  
+    def _put(self, item):
+        pkg_name = item['name']
+          
+        if pkg_name not in self.all_items:        
+            self.all_items.add(pkg_name)
+            Queue._put(self, item)
+  
+    def _get(self):
+        item = Queue._get(self)
+        pkg_name = item['name']
+        self.all_items.discard(pkg_name)
+        return item
+ 
+queue = SetQueue()
+t = threading.Thread(target=worker)
+t.daemon = True
+t.start()
+ 
 
 def get_url_without_slash_at_the_end(url):
     if url and url.endswith("/"):
@@ -75,19 +105,16 @@ def datastore_primary_key(context, data_dict=None):
     
     return p_keys
 
-def start_sync(context, dataset):
+def start_sync(dataset):
     assert dataset
-    
-    log.debug('acquiring lock')
-    lock.acquire()
-    log.debug('lock acquired')
+     
     try:
         log.debug('>>> starting sync of dataset = {0}'.format(dataset['name']))
         catalogs = get_catalogs_to_sync(dataset)
-        
+         
         from_ckan = CkanAPIWrapper(src_ckan, None)
         default_dst_ckan = CkanAPIWrapper(dst_ckan, dst_api_key)
-            
+             
         log.debug("sync to default CKAN: {0}".format(dst_ckan))
         try:
             CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
@@ -97,17 +124,14 @@ def start_sync(context, dataset):
             log.error("Couldn't finish synchronization: {0}".format(e))
         except Exception, e:
             log.exception(e)
-            
+             
         log.debug("sync to dataset specified external catalogs ({0})".format(len(catalogs)))
         for catalog in catalogs:
             sync_ext_catalog(from_ckan, catalog, dataset)
-            
+             
         log.debug('<<< end of synchronization')
     except Exception, e:
         log.error(e)
-    finally:
-        log.debug('releasing lock')
-        lock.release()
 
 
 def sync_ext_catalog(from_ckan, external_catalog, dataset):
@@ -156,11 +180,10 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
 
 def dataset_update(context, data_dict=None):
     ret_val = package_update(context, data_dict)
+    
     if not context.get('defer_commit') and not ret_val['private']:
         log.debug("package_update sync dataset")
-        t = threading.Thread(target=start_sync, args=(context, ret_val, ))
-        t.daemon = True
-        t.start()
+        queue.put(ret_val)
         
     return ret_val
 
@@ -170,40 +193,33 @@ def dataset_create(context, data_dict=None):
 
     if not context.get('defer_commit') and not ret_val['private']:
         log.debug("package_create sync dataset")
-        t = threading.Thread(target=start_sync, args=(context, ret_val, ))
-        t.daemon = True
-        t.start()
+        queue.put(ret_val)
         
     return ret_val
 
-
 def res_create(context, data_dict=None):
     ret_val = resource_create(context, data_dict)
-    package_id = context['package'].name
     
-    data_dict = {'id': package_id}
-    dataset = get_action('package_show')(context, data_dict)
-    if not dataset['private']: # dataset is public
+    dataset_obj = context['package']
+    data_dict = {'id': dataset_obj.id,
+                 'name': dataset_obj.name}
+    if not dataset_obj.private: # dataset is public
         log.debug("resource_create sync dataset")
-        t = threading.Thread(target=start_sync, args=(context, dataset, ))
-        t.daemon = True
-        t.start()
+        queue.put(data_dict)
     
     return ret_val
 
 
 def res_update(context, data_dict=None):
     ret_val = resource_update(context, data_dict)
-    package_id = context['package'].name
-
-    data_dict = {'id': package_id}
-    dataset = get_action('package_show')(context, data_dict)
-    if not dataset['private']: # dataset is public
+    
+    dataset_obj = context['package']
+    data_dict = {'id': dataset_obj.id,
+                 'name': dataset_obj.name}
+    if not dataset_obj.private: # dataset is public
         log.debug("resource_update sync dataset")
-        t = threading.Thread(target=start_sync, args=(context, dataset, ))
-        t.daemon = True
-        t.start()
-        
+        queue.put(data_dict)
+    
     return ret_val
 
 
@@ -220,8 +236,7 @@ class PublishingPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IRoutes)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.ITemplateHelpers)
-
-
+    
     def get_helpers(self):
         return {'format_datetime': format_datetime}
         
