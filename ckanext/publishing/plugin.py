@@ -8,8 +8,8 @@ import routes.mapper
 import logging
 import threading
 
-from ckan.logic.action.update import package_update
-from ckan.logic.action.create import package_create
+from ckan.logic.action.update import package_update, resource_update
+from ckan.logic.action.create import package_create, resource_create
 from ckanext.model.external_catalog import ExternalCatalog, STATUS
 from odn_ckancommons.ckan_helper import CkanAPIWrapper
 from ckanext.publishing.ckan_sync import CkanSync
@@ -39,7 +39,6 @@ class SetQueue(Queue):
     def _init(self, maxsize):
         Queue._init(self, maxsize)
         self.all_items = set()
-        log.debug("SetQueue init")
   
     def _put(self, item):
         pkg_name = item['name']
@@ -180,10 +179,9 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
         
 
 def dataset_update(context, data_dict=None):
-    # catches also resource_update, resource_create, resource_delete
     ret_val = package_update(context, data_dict)
     
-    if not ret_val['private']:
+    if not context.get('defer_commit') and not ret_val['private']:
         log.debug("package_update sync dataset")
         queue.put(ret_val)
         
@@ -193,10 +191,35 @@ def dataset_update(context, data_dict=None):
 def dataset_create(context, data_dict=None):
     ret_val = package_create(context, data_dict)
 
-    if not ret_val['private']:
+    if not context.get('defer_commit') and not ret_val['private']:
         log.debug("package_create sync dataset")
         queue.put(ret_val)
         
+    return ret_val
+
+def res_create(context, data_dict=None):
+    ret_val = resource_create(context, data_dict)
+    
+    dataset_obj = context['package']
+    data_dict = {'id': dataset_obj.id,
+                 'name': dataset_obj.name}
+    if not dataset_obj.private: # dataset is public
+        log.debug("resource_create sync dataset")
+        queue.put(data_dict)
+    
+    return ret_val
+
+
+def res_update(context, data_dict=None):
+    ret_val = resource_update(context, data_dict)
+    
+    dataset_obj = context['package']
+    data_dict = {'id': dataset_obj.id,
+                 'name': dataset_obj.name}
+    if not dataset_obj.private: # dataset is public
+        log.debug("resource_update sync dataset")
+        queue.put(data_dict)
+    
     return ret_val
 
 
@@ -221,6 +244,8 @@ class PublishingPlugin(plugins.SingletonPlugin):
     def get_actions(self):
         return {'package_create': dataset_create,
                 'package_update': dataset_update,
+                'resource_create': res_create,
+                'resource_update': res_update,
                 'datastore_primary_key':datastore_primary_key}
 
     
