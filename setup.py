@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '1.1.2'
+version = '1.2.0'
 
 setup(
     name='ckanext-odn-ic2pc-sync',
@@ -35,7 +35,7 @@ setup(
                   },
     include_package_data=True,
     zip_safe=False,
-    install_requires=['odn-ckancommons>=1.1.2'],
+    install_requires=['odn-ckancommons>=1.2.0'],
     message_extractors={
         'ckanext': [
             ('**.py', 'python', None),

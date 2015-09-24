@@ -70,6 +70,13 @@ Migrating DB from v0.3.x to v0.4.0
 paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd migrate_to_v0.4.0 --config=/etc/ckan/default/production.ini
 ```
 
+Migrating DB from v0.4.x and v0.5.x to v0.6.0
+-------
+
+```
+paster --plugin=ckanext-odn-ic2pc-sync odn_ic2pc_sync_cmd migrate_to_v0.6.0 --config=/etc/ckan/default/production.ini
+```
+
 Uninstall
 -------
 

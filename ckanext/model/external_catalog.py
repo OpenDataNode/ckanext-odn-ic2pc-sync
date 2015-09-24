@@ -23,7 +23,8 @@ external_catalog_table = Table('external_catalog', metadata,
             Column('authorization', types.UnicodeText, nullable=True),
             Column('last_updated', types.DateTime, nullable=True),
             Column('status', types.SmallInteger(), nullable=False),
-            Column('ext_org_id', types.UnicodeText, nullable=True)
+            Column('ext_org_id', types.UnicodeText, nullable=True),
+            Column('create_as_private', types.BOOLEAN, nullable=False, default=False)
             )
 
 def migrate_to_v0_3():
@@ -48,11 +49,21 @@ def migrate_to_v0_4():
     conn.execute(statement)
     Session.commit()
     
+def migrate_to_v0_6():
+    conn = Session.connection()
+    
+    statement = """
+    ALTER TABLE external_catalog
+        ADD COLUMN create_as_private BOOLEAN NOT NULL DEFAULT FALSE;
+    """
+    conn.execute(statement)
+    Session.commit()
+    
 
 
 class ExternalCatalog(domain_object.DomainObject):
     
-    def __init__(self, package_id, type, url, authorization_required, authorization, last_updated=None, status=0, ext_org_id=None):
+    def __init__(self, package_id, type, url, authorization_required, authorization, last_updated=None, status=0, ext_org_id=None, create_as_private=False):
         assert package_id
         assert type
         assert url
@@ -65,6 +76,7 @@ class ExternalCatalog(domain_object.DomainObject):
         self.last_updated = last_updated
         self.status = status
         self.ext_org_id = ext_org_id
+        self.create_as_private = create_as_private
     
     @classmethod
     def get_all(cls):

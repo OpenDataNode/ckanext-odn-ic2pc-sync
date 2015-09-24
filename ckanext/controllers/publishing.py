@@ -136,7 +136,7 @@ class PublishingController(base.BaseController):
 
 
     def verify(self, id, data, vars):
-        cat_id, type, url, auth_req, auth, org_id = data
+        cat_id, type, url, auth_req, auth, org_id, create_as_private = data
         has_errors = len(vars) > 0
             
         vars['cat_id'] = cat_id
@@ -145,6 +145,9 @@ class PublishingController(base.BaseController):
         vars['req_auth'] = auth_req
         vars['auth'] = auth
         vars['org_id'] = org_id
+        vars['create_as_private'] = create_as_private
+        
+        log.debug("CREATE AS PRIVATE = {0}".format(create_as_private))
         
         if has_errors :
             return self._edit(id, vars)
@@ -205,8 +208,11 @@ class PublishingController(base.BaseController):
         url = get_url_without_slash_at_the_end(data.get(u'url', ''))
         org_id = data.get(u'org_id', '')
         auth_req = False
+        create_as_private = False
         if u'authorization_required' in data:
             auth_req = True
+        if u'create_as_private' in data:
+            create_as_private = True
         auth = data[u'authorization']
         
         err_msg = [_("This field is required")]
@@ -225,7 +231,7 @@ class PublishingController(base.BaseController):
             extra_vars['url_error'] = [_('This dataset already has external catalog with this URL')]
         
         if data.get('action', None) == 'verify':
-            return self.verify(id, (cat_id, type, url, auth_req, auth, org_id), extra_vars)
+            return self.verify(id, (cat_id, type, url, auth_req, auth, org_id, create_as_private), extra_vars)
         
         
         if extra_vars:
@@ -239,7 +245,7 @@ class PublishingController(base.BaseController):
             
         try:
             if not cat_id:
-                ext_catalog = ExternalCatalog(id, type, url, auth_req, auth, ext_org_id=org_id)
+                ext_catalog = ExternalCatalog(id, type, url, auth_req, auth, ext_org_id=org_id, create_as_private=create_as_private)
             else:
                 ext_catalog = ExternalCatalog.by_id(cat_id)
                 ext_catalog.type = type
@@ -247,6 +253,7 @@ class PublishingController(base.BaseController):
                 ext_catalog.authorization_required = auth_req
                 ext_catalog.authorization = auth
                 ext_catalog.ext_org_id = org_id
+                ext_catalog.create_as_private = create_as_private
             
             ext_catalog.save()
             h.flash_success(_("Successfully created / edited catalog {url}").format(url=url))

@@ -22,7 +22,8 @@ class CkanSync():
              whitelist_package_extras=None,
              whitelist_resource_extras=None,
              org_id_name=None,
-             can_create_org=False):
+             can_create_org=False,
+             create_pkg_as_private=False):
         '''
         pushes datasets from_ckan to dst_ckan
         :param src_ckan: source ckan
@@ -39,6 +40,8 @@ class CkanSync():
         :type org_id_name: string 
         :param can_create_org: should create organization when it doesn't exist in destination ckan
         :type can_create_org: boolean
+        :param create_pkg_as_private: when creating new dataset, if it should be created as private
+        :type create_pkg_as_private: boolean 
         
         ::usage::
         src_ckan = CkanAPIWrapper('http://src_ckan.com', 'api_key')
@@ -70,7 +73,11 @@ class CkanSync():
 
             phase = u'[Obtaining dataset]'
             try:
-                found, dst_package_id = dst_ckan.package_search_by_name(dataset_obj)
+                found = False
+                dst_package = dst_ckan.get_package(dataset_obj.name)
+                if dst_package:
+                    found = True
+                
                 # get information (name) about organization from source
                 phase = u'[Obtaining organization]'
                 found_organization, __ = dst_ckan.find_organization(org_name)
@@ -92,11 +99,15 @@ class CkanSync():
 
                 if found:
                     phase = u'[Updating dataset]'
-                    dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())[
-                        'id']
+                    dataset_obj.private = dst_package['private'] # don't change private field
+                    dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())['id']
                     log.debug(u'[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
                     phase = u'[Creating dataset]'
+                    
+                    if create_pkg_as_private:
+                        dataset_obj.private = True
+                    
                     dst_package_id = dst_ckan.package_create(dataset_obj)['id']
                     log.debug(u'[{0} / {1}] dataset_obj {2} created OK'.format(i, dataset_num, dataset_id))
                 
