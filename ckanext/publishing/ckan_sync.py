@@ -9,7 +9,6 @@ import urllib2
 import logging
 from odn_ckancommons.JSON_Dataset import resource_create_update_with_upload,\
             load_from_dict, filter_package_extras
-import urllib
 import json
 log = logging.getLogger('ckanext')
 
@@ -220,7 +219,7 @@ def datastore_primary_key(ckan, id):
     # this will function only on ckan with this plugin
     url = ckan.url + '/api/action/datastore_primary_key'
     data_dict = { 'id':id }
-    data_string = urllib.quote(json.dumps(data_dict))
+    data_string = json.dumps(data_dict)
     return ckan.send_request(data_string, url)
 
 
