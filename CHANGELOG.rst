@@ -2,6 +2,11 @@
 Changelog
 ---------
 
+v1.2.1 2015-10-02
+
+Bug fixes:
+ * Fixed bug when updating datastore resource
+
 v1.2.0 2015-09-23
 
 Notes:

@@ -12,7 +12,7 @@ from odn_ckancommons.JSON_Dataset import resource_create_update_with_upload,\
 import json
 log = logging.getLogger('ckanext')
 
-DATASTORE_CHUNK_SIZE = 100000
+DATASTORE_CHUNK_SIZE = 50000
 
 class CkanSync():
     
@@ -168,59 +168,49 @@ def update_datastore_resource(src_ckan, dst_ckan, src_resource, dst_resource):
     src_res_id = src_resource['id']
     
     # just to get fields
-    datastore_res, total = get_datastore_resource(src_ckan, src_res_id, limit=0)
+    datastore_res, total = get_datastore_resource(src_ckan, src_res_id, limit=1)
     
     # we dont want the internal _id field
-    fields = [field['id'] for field in datastore_res['fields'] if field['id'] != '_id']
-    datastore_res, total = get_datastore_resource(src_ckan, src_res_id, fields=fields)
+    fields = [field for field in datastore_res['fields'] if field['id'] != '_id']
+    field_names = [field['id'] for field in fields if field['id'] != '_id']
     
-    is_initialized = False
     try:
-        get_datastore_resource(dst_ckan, dst_resource['id'], limit=0)
-        is_initialized = True
+        log.debug("deleting dataset resource")
+        dst_ckan.datastore_delete(dst_resource['id'])
     except urllib2.HTTPError, e:
         if e.code == 400: # Bad Request
             raise Exception('Destination catalog has no datastore configured!')
         if e.code != 404: # raise except NotFound error
             raise e
-    
-    if not is_initialized:
-        data_dict = {
+
+    log.debug("recreating dataset resource")
+    data_dict = {
             'force':True,
             'resource_id': dst_resource['id'],
-            'fields': datastore_res['fields'],
-            'records': datastore_res['records'],
+            'fields': fields,
+            'records': [],
             'primary_key': datastore_primary_key(src_ckan, src_res_id),
             'indexes': []
-        }
-        # create + first chunk
-        resp = dst_ckan.datastore_create(data_dict)
+    }
+    
+    dst_ckan.datastore_create(data_dict) # recreating without records (old are deleted)
 
-        datastore_upsert_in_chunks(src_ckan, src_res_id,
-                                   dst_ckan, dst_resource['id'],
-                                   total)
-    else:
-        # first chunk
-        resp = datastore_upsert_in_chunks(src_ckan,
-                                          datastore_res['records'],
-                                          dst_ckan,
-                                          dst_resource['id'],
-                                          total)
-        # all the others if there is any
-        datastore_upsert_in_chunks(src_ckan,
-                                   src_res_id,
-                                   dst_ckan,
-                                   dst_resource['id'],
-                                   total)
-        # TODO remove records not updated?
-
+    datastore_upsert_in_chunks(src_ckan, src_res_id,
+                               dst_ckan, dst_resource['id'],
+                               total, field_names)
+        
 def datastore_primary_key(ckan, id):
     # this isn't standard api call
     # this will function only on ckan with this plugin
     url = ckan.url + '/api/action/datastore_primary_key'
     data_dict = { 'id':id }
     data_string = json.dumps(data_dict)
-    return ckan.send_request(data_string, url)
+    
+    try:
+        return ckan.send_request(data_string, url)
+    except Exception, e:
+        log.warning(str(e))
+    return []
 
 
 
@@ -238,10 +228,12 @@ def get_datastore_resource(ckan, resource_id, fields=None, offset=0, limit=DATAS
     return datastore_res, datastore_res.get('total', None)
 
 
-def datastore_upsert_in_chunks(src_ckan, src_resource_id, dst_ckan, dst_resource_id, total):
-    offset = DATASTORE_CHUNK_SIZE
+def datastore_upsert_in_chunks(src_ckan, src_resource_id, dst_ckan, dst_resource_id, total, fields=None):
+    offset = 0
     while offset < total:
-        res_chunk = get_datastore_resource(src_ckan, src_resource_id,
+        log.debug("Chunk: {0} - {1} ({2})".format(offset, offset + DATASTORE_CHUNK_SIZE -1, total))
+        res_chunk, __ = get_datastore_resource(src_ckan, src_resource_id,
+                                           fields=fields,
                                            limit=DATASTORE_CHUNK_SIZE,
                                            offset=offset)
         records = res_chunk['records']
@@ -257,8 +249,8 @@ def datastore_upsert(src_ckan, records, dst_ckan, dst_resource_id):
         'force':True,
         'resource_id': dst_resource_id,
         'records': records,
+        'method':'insert', # no records when datastore was created
     }
-    log.debug('upsert 100k records')
     return dst_ckan.datastore_upsert(data_dict)
     
     
