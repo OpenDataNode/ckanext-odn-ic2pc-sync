@@ -3,22 +3,24 @@
 # This file is distributed under the same license as the
 # ckanext-odn-ic2pc-sync
 # project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
-#
+# 
+# Translators:
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015
+# Sveto Krchnavy, 2015
 msgid ""
 msgstr ""
-"Project-Id-Version: ckanext-odn-ic2pc-sync 0.5.5\n"
+"Project-Id-Version: ckanext-odn-ic2pc-sync\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2015-09-09 18:20+0200\n"
-"PO-Revision-Date: 2015-06-12 13:50+0200\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: sk <LL@li.org>\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"PO-Revision-Date: 2015-10-22 12:44+0000\n"
+"Last-Translator: Sveto Krchnavy\n"
+"Language-Team: Slovak (http://www.transifex.com/opendatanode/ckanext-odn-ic2pc-sync/language/sk/)\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 0.9.6\n"
+"Language: sk\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 
 #: ckanext/controllers/publishing.py:76
 msgid "User {user} not authorized to edit {id}"
@@ -48,9 +50,7 @@ msgstr "Nepodarilo sa pripojit ku katalogu."
 msgid ""
 "The verification was redirected to '{0}'. The synchronization may not "
 "function properly. Try to replace URL for the redirected url."
-msgstr ""
-"Overovanie bolo presmerované na '{0}'. Synchronizácia nemusí fungovať "
-"správne. Skúste nahradiť URL za tú, na ktorú bola presmerovaná."
+msgstr "Overovanie bolo presmerované na '{0}'. Synchronizácia nemusí fungovať správne. Skúste nahradiť URL za tú, na ktorú bola presmerovaná."
 
 #: ckanext/controllers/publishing.py:177
 msgid "Organization with this id or name was not found."
@@ -58,11 +58,9 @@ msgstr "Nepodarilo sa nájsť organizáciu s týmto id alebo menom."
 
 #: ckanext/controllers/publishing.py:183
 msgid ""
-"User with this API key is not authorized to edit datasets for "
-"organization {0}"
-msgstr ""
-"Používateľ s týmto API kľúčom nie je autorizovaný meniť dataset pre "
-"organizáciu {0}"
+"User with this API key is not authorized to edit datasets for organization "
+"{0}"
+msgstr "Používateľ s týmto API kľúčom nie je autorizovaný meniť dataset pre organizáciu {0}"
 
 #: ckanext/controllers/publishing.py:185
 msgid "This catalog requires authorization for organization {0}."
@@ -134,14 +132,13 @@ msgstr "Zoznam asociovaných externých katalógov"
 
 #: ckanext/publishing/templates/package/publishing.html:40
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: ckanext/publishing/templates/package/publishing.html:41
 msgid "Type"
 msgstr "Typ"
 
 #: ckanext/publishing/templates/package/publishing.html:42
-#, fuzzy
 msgid "Authorization"
 msgstr "vyžaduje autorizáciu"
 
@@ -184,7 +181,7 @@ msgstr "Zmazanie katalógu"
 
 #: ckanext/publishing/templates/publishing/delete.html:18
 msgid "Deletion of external catalog"
-msgstr "Zmazanie externéko katalógu"
+msgstr "Zmazanie externého katalógu"
 
 #: ckanext/publishing/templates/publishing/delete.html:23
 msgid "Type of catalog:"
@@ -251,9 +248,7 @@ msgstr "id alebo meno organizácie"
 msgid ""
 "If checked, the newly created dataset will be marked as private. When "
 "updating already existing dataset, the state doesn't change."
-msgstr ""
-"Ak je zaškrtnuté, novo vytvrený dataset bude označený ako privátny. Ak "
-"sa updatuje už existujúci dataset, stav ostáva nezmenený."
+msgstr "Ak je zaškrtnuté, novo vytvrený dataset bude označený ako privátny. Ak sa updatuje už existujúci dataset, stav ostáva nezmenený."
 
 #: ckanext/publishing/templates/publishing/edit.html:55
 msgid "Initially create as private"
@@ -266,4 +261,3 @@ msgstr "Overiť"
 #: ckanext/publishing/templates/publishing/edit.html:62
 msgid "Save"
 msgstr "Uložiť"
-
