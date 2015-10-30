@@ -1,0 +1,258 @@
+# Translations template for ckanext-odn-ic2pc-sync.
+# Copyright (C) 2015 ORGANIZATION
+# This file is distributed under the same license as the ckanext-odn-ic2pc-sync
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2015.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: ckanext-odn-ic2pc-sync 1.2.1\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2015-10-30 13:02+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: ckanext/controllers/publishing.py:76
+msgid "User {user} not authorized to edit {id}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:82
+msgid "Dataset not found"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:84
+msgid "Unauthorized to read package {id}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:129
+msgid "Catalog deleted successfully."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:133
+msgid "Error: couldn't delete catalog, cause: {err_msg}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:165
+msgid "Could not connect to this catalog."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:169
+msgid ""
+"The verification was redirected to '{0}'. The synchronization may not "
+"function properly. Try to replace URL for the redirected url."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:177
+msgid "Organization with this id or name was not found."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:183
+msgid "User with this API key is not authorized to edit datasets for organization {0}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:185
+msgid "This catalog requires authorization for organization {0}."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:189
+msgid "External catalog verification was successful."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:192
+msgid "Verify is not supported for type {0}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:218
+msgid "This field is required"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:231
+msgid "This dataset already has external catalog with this URL"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:259
+msgid "Successfully created / edited catalog {url}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:264
+msgid "Error: couldn't add catalog, cause: {err_msg}"
+msgstr ""
+
+#: ckanext/controllers/publishing.py:274 ckanext/controllers/publishing.py:301
+msgid "Synchronization with public catalog ended."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:276 ckanext/controllers/publishing.py:286
+#: ckanext/controllers/publishing.py:303
+msgid "Synchronization not started, the dataset isn't public."
+msgstr ""
+
+#: ckanext/controllers/publishing.py:284
+msgid "Synchronization with external catalogs ended."
+msgstr ""
+
+#: ckanext/publishing/templates/package/edit_base.html:6
+#: ckanext/publishing/templates/package/publishing.html:3
+msgid "Publishing"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:16
+#: ckanext/publishing/templates/package/publishing.html:45
+#: ckanext/publishing/templates/package/publishing.html:64
+msgid "Action"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:21
+msgid "Add catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:24
+msgid "Synchronize with public catalog now"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:28
+msgid "Synchronize with all external catalogs now"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:36
+msgid "List of associated external catalogs"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:40
+msgid "URL"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:41
+msgid "Type"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:42
+msgid "Authorization"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:43
+msgid "Last sync on (UTC)"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:44
+msgid "Status"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:53
+msgid "Yes"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:55
+msgid "No"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:69
+msgid "Edit"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:72
+#: ckanext/publishing/templates/publishing/delete.html:34
+msgid "Delete"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:75
+msgid "Synchronize now"
+msgstr ""
+
+#: ckanext/publishing/templates/package/publishing.html:84
+msgid "no external catalogs defined"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/delete.html:3
+msgid "Deleting catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/delete.html:18
+msgid "Deletion of external catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/delete.html:23
+msgid "Type of catalog:"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/delete.html:27
+msgid "URL of external catalog:"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/delete.html:31
+msgid "Delete this catalog?"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/delete.html:33
+#: ckanext/publishing/templates/publishing/edit.html:59
+msgid "Back"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:3
+msgid "Edit catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:38
+msgid "Modify external catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:40
+msgid "Add new external catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:46
+msgid "Type of catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:47
+msgid "URL of external catalog"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:47
+msgid "http://..."
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:48
+msgid "Requires authorization"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:49
+msgid "Authorization (API key)"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:49
+msgid "API key"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:50
+msgid "Organization"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:50
+msgid "organization id or name"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:52
+msgid ""
+"If checked, the newly created dataset will be marked as private. When "
+"updating already existing dataset, the state doesn't change."
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:55
+msgid "Initially create as private"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:61
+msgid "Verify"
+msgstr ""
+
+#: ckanext/publishing/templates/publishing/edit.html:62
+msgid "Save"
+msgstr ""
+

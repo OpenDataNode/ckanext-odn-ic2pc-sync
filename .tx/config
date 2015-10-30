@@ -3,7 +3,7 @@ host = https://www.transifex.com
 
 [ckanext-odn-ic2pc-sync.ckanext-odn-ic2pc-sync-pot]
 file_filter = ckanext/i18n/<lang>/LC_MESSAGES/ckanext_odn_ic2pc.po
-surce_file = ckanext/i18n/kanext-odn-ic2pc-sync.pot
+source_file = ckanext/i18n/ckanext-odn-ic2pc-sync.pot
 source_lang = en
 type = PO
 
