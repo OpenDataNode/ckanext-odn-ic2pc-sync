@@ -1,18 +1,16 @@
-# Slovak translations for ckanext-odn-ic2pc-sync.
+# Translations template for ckanext-odn-ic2pc-sync.
 # Copyright (C) 2015 ORGANIZATION
-# This file is distributed under the same license as the
-# ckanext-odn-ic2pc-sync
+# This file is distributed under the same license as the ckanext-odn-ic2pc-sync
 # project.
 # 
 # Translators:
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2015
 # Sveto Krchnavy, 2015
 msgid ""
 msgstr ""
 "Project-Id-Version: ckanext-odn-ic2pc-sync\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2015-09-09 18:20+0200\n"
-"PO-Revision-Date: 2015-10-22 12:44+0000\n"
+"POT-Creation-Date: 2015-10-30 13:02+0100\n"
+"PO-Revision-Date: 2015-10-30 14:05+0000\n"
 "Last-Translator: Sveto Krchnavy\n"
 "Language-Team: Slovak (http://www.transifex.com/opendatanode/ckanext-odn-ic2pc-sync/language/sk/)\n"
 "MIME-Version: 1.0\n"
