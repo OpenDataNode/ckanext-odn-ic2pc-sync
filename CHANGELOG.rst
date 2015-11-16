@@ -2,6 +2,12 @@
 Changelog
 ---------
 
+
+v1.2.2-SNAPSHOT 2015-11-??
+
+New features:
+* Added support for translation using transifex
+
 v1.2.1 2015-10-02
 
 Bug fixes:
