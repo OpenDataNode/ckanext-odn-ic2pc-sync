@@ -98,7 +98,6 @@ class CkanSync():
 
                 if found:
                     phase = u'[Updating dataset]'
-                    dataset_obj.private = dst_package['private'] # don't change private field
                     dst_package_id = dst_ckan.package_update_data(dataset_id, dataset_obj.tojson_without_resource())['id']
                     log.debug(u'[{0} / {1}] dataset_obj with id/name {2} updated OK'.format(i, dataset_num, dataset_id))
                 else:
