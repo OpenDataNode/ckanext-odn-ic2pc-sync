@@ -122,7 +122,7 @@ def start_sync(dataset):
             if dataset.get('state', '') == 'deleted':
                 log.debug('deleting dataset: {0}'.format(dataset['name']))
                 default_dst_ckan.package_delete(dataset['name'])
-            elif dataset['private']:
+            elif 'private' in dataset and dataset['private']:
                 log.debug('making dataset private: {0}'.format(dataset['name']))
                 dataset_obj = load_from_dict(dataset)
                 # this updates only dataset not resources 
