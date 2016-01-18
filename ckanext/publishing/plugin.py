@@ -8,10 +8,12 @@ import routes.mapper
 import logging
 import threading
 
-from ckan.logic.action.update import package_update, resource_update
+from ckan.logic.action.delete import package_delete
 from ckan.logic.action.create import package_create, resource_create
+from ckan.logic.action.update import package_update, resource_update
 from ckanext.model.external_catalog import ExternalCatalog, STATUS
 from odn_ckancommons.ckan_helper import CkanAPIWrapper
+from odn_ckancommons.JSON_Dataset import load_from_dict
 from ckanext.publishing.ckan_sync import CkanSync
 from urllib2 import URLError
 from datetime import datetime
@@ -117,7 +119,16 @@ def start_sync(dataset):
              
         log.debug("sync to default CKAN: {0}".format(dst_ckan))
         try:
-            CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
+            if dataset.get('state', '') == 'deleted':
+                log.debug('deleting dataset: {0}'.format(dataset['name']))
+                default_dst_ckan.package_delete(dataset['name'])
+            elif 'private' in dataset and dataset['private']:
+                log.debug('making dataset private: {0}'.format(dataset['name']))
+                dataset_obj = load_from_dict(dataset)
+                # this updates only dataset not resources 
+                default_dst_ckan.package_update(dataset_obj)
+            else:
+                CkanSync().push(from_ckan, default_dst_ckan, [dataset['name']],
                             package_extras_whitelist, resource_extras_whitelist,
                             can_create_org=True)
         except URLError, e:
@@ -143,6 +154,8 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
     :type external_catalog: ExternalCatalog
     :param dataset: dataset to push / synchronize
     :type dataset: dictionary
+    
+    :return: array of errors
     '''
     status = STATUS.index("OK")
     errors = []
@@ -155,7 +168,23 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
                 authorization = external_catalog.authorization
             
             to_ckan = CkanAPIWrapper(external_catalog.url, authorization)
-            errors = CkanSync().push(from_ckan, to_ckan, [dataset['name']], \
+            
+            if dataset.get('state', '') == 'deleted':
+                log.debug('deleting dataset: {0}'.format(dataset['name']))
+                try: 
+                    to_ckan.package_delete(dataset['name'])
+                except Exception, e:
+                    errors = [str(e)]
+            elif dataset['private']:
+                log.debug('making dataset private: {0}'.format(dataset['name']))
+                try:
+                    # this updates only dataset not resources 
+                    dataset_obj = load_from_dict(dataset)
+                    to_ckan.package_update(dataset_obj)
+                except Exception, e:
+                    errors = [str(e)]
+            else:
+                errors = CkanSync().push(from_ckan, to_ckan, [dataset['name']], \
                                     package_extras_whitelist, resource_extras_whitelist, \
                                     org_id_name=external_catalog.ext_org_id, \
                                     create_pkg_as_private=external_catalog.create_as_private)
@@ -181,7 +210,7 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
 def dataset_update(context, data_dict=None):
     ret_val = package_update(context, data_dict)
     
-    if not context.get('defer_commit') and not ret_val['private']:
+    if not context.get('defer_commit'):
         log.debug("package_update sync dataset")
         queue.put(ret_val)
         
@@ -196,6 +225,21 @@ def dataset_create(context, data_dict=None):
         queue.put(ret_val)
         
     return ret_val
+
+
+def dataset_delete(context, data_dict=None):
+    ret_val = package_delete(context, data_dict)
+    
+    # has to have name too, because of queue filtering
+    dataset = get_action('package_show')(context, data_dict)
+    log.debug("package_delete sync dataset: {0}".format(dataset['name']))
+    if dataset['state'] == 'deleted':
+        queue.put(dataset)
+    else:
+        log.error("package '{0}' wasn't deleted, cancelling synchronization".format(dataset['name']))
+    
+    return ret_val
+    
 
 def res_create(context, data_dict=None):
     ret_val = resource_create(context, data_dict)
@@ -244,6 +288,7 @@ class PublishingPlugin(plugins.SingletonPlugin):
     def get_actions(self):
         return {'package_create': dataset_create,
                 'package_update': dataset_update,
+                'package_delete': dataset_delete,
                 'resource_create': res_create,
                 'resource_update': res_update,
                 'datastore_primary_key':datastore_primary_key}

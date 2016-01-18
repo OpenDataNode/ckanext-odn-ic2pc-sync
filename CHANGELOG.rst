@@ -2,6 +2,14 @@
 Changelog
 ---------
 
+
+v1.2.2-SNAPSHOT 2015-12-??
+
+New features:
+* deleting dataset will "delete" it in the destination CKAN too [OpenDataNode/open-data-node#110]
+* making dataset private dataset will make it private in the destination CKAN too [OpenDataNode/open-data-node#110]
+* Added support for translation using transifex
+
 v1.2.1 2015-10-02
 
 Bug fixes:
