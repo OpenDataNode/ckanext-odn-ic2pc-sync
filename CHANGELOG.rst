@@ -2,8 +2,12 @@
 Changelog
 ---------
 
+v1.2.3-SNAPSHOT
 
-v1.2.2-SNAPSHOT 2015-12-??
+Bug fixes:
+ * performance issue. The synchronization request took too long causing the process to stop [OpenDataNode/open-data-node#242]
+
+v1.2.2 2016-01-18
 
 New features:
 * deleting dataset will "delete" it in the destination CKAN too [OpenDataNode/open-data-node#110]

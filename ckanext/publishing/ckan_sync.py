@@ -12,7 +12,7 @@ from odn_ckancommons.JSON_Dataset import resource_create_update_with_upload,\
 import json
 log = logging.getLogger('ckanext')
 
-DATASTORE_CHUNK_SIZE = 50000
+DATASTORE_CHUNK_SIZE = 5000
 
 class CkanSync():
     
