@@ -175,7 +175,7 @@ def sync_ext_catalog(from_ckan, external_catalog, dataset):
                     to_ckan.package_delete(dataset['name'])
                 except Exception, e:
                     errors = [str(e)]
-            elif dataset['private']:
+            elif 'private' in dataset and dataset['private']:
                 log.debug('making dataset private: {0}'.format(dataset['name']))
                 try:
                     # this updates only dataset not resources 
